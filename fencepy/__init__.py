@@ -1,4 +1,10 @@
-#!/usr/bin/python
+"""
+fencepy
+
+Create a virtual environment tied to a particular directory and shortcuts to its activation.
+Includes special processing if the directory is part of a git repository.  Also includes convenience
+configuration for users of sublime text
+"""
 
 import argparse
 import commands
@@ -55,12 +61,19 @@ def _get_args():
 
     # reset the virtualenv root, if necessary
     if not args['virtualenv_dir']:
-        tokens = os.path.dirname(args['dir']).split(os.path.sep)
-        tokens.reverse()
-        if tokens[-1] == '':
-            tokens = tokens[:-1]
-        suffix = '.'.join([d[0] for d in tokens])
-        args['virtualenv_dir'] = os.path.join(VENV_ROOT, '.'.join([os.path.basename(args['dir']), suffix]))
+
+        # if we're one directory below the root, this logic needs to work differently
+        parent = os.path.dirname(args['dir'])
+        if parent in ('/', os.path.splitdrive(parent)[0]):
+            args['virtualenv_dir'] = os.path.join(VENV_ROOT, os.path.basename(args['dir']))
+
+        else:
+            tokens = os.path.dirname(args['dir']).split(os.path.sep)
+            tokens.reverse()
+            if tokens[-1] == '':
+                tokens = tokens[:-1]
+            suffix = '.'.join([d[0] for d in tokens])
+            args['virtualenv_dir'] = os.path.join(VENV_ROOT, '.'.join([os.path.basename(args['dir']), suffix]))
 
     # set the mode properly
     modecount = [args['activate'], args['create'], args['erase']].count(True)
