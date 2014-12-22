@@ -1,0 +1,7 @@
+# python files
+*.pyc
+__pycache__/
+
+# sublime files
+*.sublime-project
+*.sublime-workspace
