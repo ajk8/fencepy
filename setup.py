@@ -7,7 +7,7 @@ setup(
     author='Adam Kaufman',
     author_email='kaufman.blue@gmail.com',
     url='https://github.com/ajk8/fencepy',
-    license='GNU GPLv3',
+    license='MIT',
     packages=['fencepy'],
     entry_points={'console_scripts': ['fencepy = fencepy:fence']},
     test_suite='tests',
@@ -16,7 +16,11 @@ setup(
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
-        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
         'Topic :: Software Development'
-    ]
+    ],
+    keywords='virtualenv development'
 )

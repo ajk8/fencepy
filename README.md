@@ -40,4 +40,11 @@ As a helpful shortcut, if there is a `requirements.txt` file in the input direct
 
 ## Additional notes
 
+### Python versions
+
+Currently, only python 2.x is supported.
+
+### Cross-platform support
+
 During initial implementation, care was taken to make the library mostly platform-independent.  However, it has not been tested with anything other than linux and is not expected to function in other environments without some work.
+
