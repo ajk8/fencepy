@@ -7,6 +7,7 @@ setup(
     author='Adam Kaufman',
     author_email='kaufman.blue@gmail.com',
     url='https://github.com/ajk8/fencepy',
+    download_url='https://github.com/ajk8/fencepy/tarball/0.1',
     license='MIT',
     packages=['fencepy'],
     entry_points={'console_scripts': ['fencepy = fencepy:fence']},
