@@ -3,6 +3,8 @@
 __pycache__/
 MANIFEST
 dist/
+*.egg/
+*.egg-info/
 
 # sublime files
 *.sublime-project
