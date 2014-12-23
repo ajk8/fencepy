@@ -2,6 +2,8 @@
 
 Standardized fencing off of python virtual environments on a per-project basis.  The idea is to take a directory as an input and create and manage a python virtual environment in a known location.
 
+[![Build Status](https://travis-ci.org/ajk8/fencepy.png?branch=master)](https://travis-ci.org/ajk8/fencepy)
+
 ## Opinionated hooks
 
 The goal is to make this framework attractive to users of other compatible products.  For instance, as a user of git and sublime text, I added functionality related to those.
