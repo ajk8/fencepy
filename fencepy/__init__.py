@@ -49,7 +49,10 @@ def _get_args():
 
     # set up logging
     if not args['quiet']:
-        l.getLogger('').addHandler(l.StreamHandler())
+        f = l.Formatter('[%(levelname)s] %(message)s')
+        h = l.StreamHandler()
+        h.setFormatter(f)
+        l.getLogger('').addHandler(h)
     l.getLogger('').setLevel(l.DEBUG if args['verbose'] else l.INFO)
 
     # we need to do some work to get the root directory we care about here
@@ -167,21 +170,23 @@ def _create(args):
     # go ahead and create the environment
     old_argv = copy.copy(sys.argv)
     sys.argv = ['virtualenv', vdir]
+    l.info('creating virtual environment')
+    print(''.ljust(40, '='))
     ret = virtualenv.main()
+    print(''.ljust(40, '='))
     sys.argv = old_argv
-    if not ret:
-        l.info('environment created successfully')
-
-    else:
-        l.error('there was a problem: {0}'.format(o))
+    if ret:
+        l.error('there was a problem: (TODO: get output from virtualenv.main())')
         return 1
 
     # install requirements, if they exist
     rtxt = os.path.join(pdir, 'requirements.txt')
     if os.path.exists(rtxt):
         l.info('loading requirements from {0}'.format(rtxt))
+        print(''.ljust(40, '='))
         output = sh.Command(os.path.join(vdir, 'bin', 'pip'))('install', '-r', rtxt, _out=_print, _err=_print)
-        # print(output)
+        output.wait()
+        print(''.ljust(40, '='))
         if output.exit_code:
             return 1
         l.info('finished installing requirements')
