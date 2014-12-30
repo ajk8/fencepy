@@ -13,7 +13,8 @@ setup(
     entry_points={'console_scripts': ['fencepy = fencepy:fence']},
     test_suite='tests',
     install_requires=[
-        'virtualenv>=1.11'
+        'virtualenv>=1.11',
+        'sh>=1.09'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -21,6 +22,10 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.1',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3'
         'Topic :: Software Development'
     ],
     keywords='virtualenv development'

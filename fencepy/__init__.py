@@ -7,11 +7,14 @@ configuration for users of sublime text
 """
 
 import argparse
-import commands
 import fnmatch
 import json
 import os
 import shutil
+import virtualenv
+import copy
+import sys
+import sh
 
 FENCEPY_ROOT = os.path.join(os.path.expanduser('~'), '.fencepy')
 if not os.path.exists(FENCEPY_ROOT):
@@ -53,9 +56,9 @@ def _get_args():
     if not args['dir']:
         args['dir'] = os.getcwd()
     if not args['plain']:
-        s, o = commands.getstatusoutput('git rev-parse --show-toplevel')
-        if not s:
-            args['dir'] = o.strip()
+        output = sh.git('rev-parse', '--show-toplevel')
+        if not output.exit_code:
+            args['dir'] = str(output).strip()
         else:
             l.error("tried to handle {0} as a git repository but it isn't one".format(args['dir']))
 
@@ -121,7 +124,7 @@ def _pseudo_merge_dict(dto, dfrom):
 
     # do the work
     for k, v in dfrom.items():
-        if not dto.has_key(k):
+        if not k in dto.keys():
             dto[k] = v
 
         # recurse on further dicts
@@ -143,6 +146,11 @@ def _locate_subdirs(pattern, root):
     return ret
 
 
+def _print(line):
+    """Wrapper function for printing sh output is necessary for python 2 compatibility"""
+    print(line)
+
+
 def _create(args):
     """Create a virtualenv for the current project"""
 
@@ -156,8 +164,11 @@ def _create(args):
         return 1
 
     # go ahead and create the environment
-    s, o = commands.getstatusoutput('virtualenv {0}'.format(vdir))
-    if not s:
+    old_argv = copy.copy(sys.argv)
+    sys.argv = ['virtualenv', vdir]
+    ret = virtualenv.main()
+    sys.argv = old_argv
+    if not ret:
         l.info('environment created successfully')
 
     else:
@@ -167,11 +178,10 @@ def _create(args):
     # install requirements, if they exist
     rtxt = os.path.join(pdir, 'requirements.txt')
     if os.path.exists(rtxt):
-        l.info('loading requirements from {0}, this can take awhile'.format(rtxt))
-        pip = os.path.join(vdir, 'bin', 'pip')
-        s, o = commands.getstatusoutput('{0} install -r {1}'.format(pip, rtxt))
-        print(o)
-        if s:
+        l.info('loading requirements from {0}'.format(rtxt))
+        output = sh.Command(os.path.join(vdir, 'bin', 'pip'))('install', '-r', rtxt, _out=_print, _err=_print)
+        # print(output)
+        if output.exit_code:
             return 1
         l.info('finished installing requirements')
 
@@ -225,4 +235,4 @@ def fence():
 
 
 if __name__ == '__main__':
-    fence()
+    sys.exit(fence())
