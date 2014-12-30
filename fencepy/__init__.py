@@ -75,8 +75,9 @@ def _get_args():
             tokens.reverse()
             if tokens[-1] == '':
                 tokens = tokens[:-1]
-            suffix = '.'.join([d[0] for d in tokens])
-            args['virtualenv_dir'] = os.path.join(VENV_ROOT, '.'.join([os.path.basename(args['dir']), suffix]))
+            prjpart = '.'.join([os.path.basename(args['dir']), '.'.join([d[0] for d in tokens])])
+            verpart = '.'.join([str(x) for x in sys.version_info[:2]])
+            args['virtualenv_dir'] = os.path.join(VENV_ROOT, prjpart, verpart)
 
     # set the mode properly
     modecount = [args['activate'], args['create'], args['erase']].count(True)
