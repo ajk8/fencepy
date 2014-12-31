@@ -2,7 +2,7 @@
 
 Standardized fencing off of python virtual environments on a per-project basis.  The idea is to take a directory as an input and create and manage a python virtual environment in a known location.
 
-[![Build Status](https://travis-ci.org/ajk8/fencepy.png?branch=master)](https://travis-ci.org/ajk8/fencepy)
+[![Build Status](https://travis-ci.org/ajk8/fencepy.png?branch=master)](https://travis-ci.org/ajk8/fencepy) [![Coverage Status](https://coveralls.io/repos/ajk8/fencepy/badge.png?branch=master)](https://coveralls.io/r/ajk8/fencepy?branch=master)
 
 ## Opinionated hooks
 
@@ -42,7 +42,7 @@ As a helpful shortcut, if there is a `requirements.txt` file in the input direct
 
 ### Python versions
 
-Both python 2 and 3 are supported.
+Both python 2 and 3 are supported.  Additionally, both can be used for one project, as they will be stored in separate directories.
 
 ### Cross-platform support
 
