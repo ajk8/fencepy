@@ -42,7 +42,7 @@ As a helpful shortcut, if there is a `requirements.txt` file in the input direct
 
 ### Python versions
 
-Currently, only python 2.x is supported.
+Both python 2 and 3 are supported.
 
 ### Cross-platform support
 
