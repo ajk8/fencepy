@@ -102,7 +102,7 @@ class TestFencepy(TestCase):
 
     def test_create_with_sublime(self):
         testsdir = os.path.dirname(os.path.realpath(__file__))
-        defaultfile = os.path.join(testsdir, 'default.sublime-project')
+        defaultfile = os.path.join(testsdir, 'sublime-project.template')
         configfile = os.path.join(self.pdir, '{0}.sublime-project'.format(PROJECT_NAME))
         shutil.copy(defaultfile, configfile)
         self.test_create_plain()
