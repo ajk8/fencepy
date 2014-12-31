@@ -7,6 +7,7 @@ dist/
 *.egg-info/
 .cache/
 .coverage
+build/
 
 # sublime files
 *.sublime-project
