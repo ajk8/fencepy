@@ -6,6 +6,7 @@ import shutil
 import copy
 import sys
 import sh
+from py.test import raises
 from contextlib import contextmanager
 if sys.version.startswith('2'):
     from StringIO import StringIO
@@ -55,7 +56,7 @@ class TestFencepy(TestCase):
         shutil.rmtree(self.tempdir)
 
     def _create_and_assert(self, *args):
-        ret = self._fence('-q', '-c', *args)
+        ret = self._fence('-c', *args)
         self.assertEqual(ret, 0, 'create command failed')
         self.assertTrue(os.path.exists(self.default_args['virtualenv_dir']))
 
@@ -77,7 +78,7 @@ class TestFencepy(TestCase):
         os.mkdir(project_dir)
         args = self._get_arg_dict('-d', project_dir)
         self.assertTrue(project_name in args['virtualenv_dir'])
-        ret = self._fence('-q', '-c', '-d', project_dir)
+        ret = self._fence('-c', '-d', project_dir)
         self.assertEqual(ret, 0, 'create command failed')
         self.assertTrue(os.path.exists(args['virtualenv_dir']))
         shutil.rmtree(args['virtualenv_dir'])
@@ -87,7 +88,7 @@ class TestFencepy(TestCase):
         project_dir = os.path.join(tempfile.gettempdir(), project_name)
         args = self._get_arg_dict('-d', project_dir)
         self.assertTrue(project_name in args['virtualenv_dir'])
-        ret = self._fence('-q', '-c', '-d', project_dir)
+        ret = self._fence('-c', '-d', project_dir)
         self.assertNotEqual(ret, 0, 'create command should not succeed')
         self.assertFalse(os.path.exists(args['virtualenv_dir']))
 
@@ -95,14 +96,42 @@ class TestFencepy(TestCase):
         vdir = os.path.join(self.tempdir, 'virtualenv')
         args = self._get_arg_dict('-D', vdir)
         self.assertEqual(vdir, args['virtualenv_dir'])
-        ret = self._fence('-q', '-c', '-D', vdir)
+        ret = self._fence('-c', '-D', vdir)
         self.assertEqual(ret, 0, 'create command failed')
         self.assertTrue(os.path.exists(vdir))
 
+    def test_create_with_sublime(self):
+        testsdir = os.path.dirname(os.path.realpath(__file__))
+        defaultfile = os.path.join(testsdir, 'default.sublime-project')
+        configfile = os.path.join(self.pdir, '{0}.sublime-project'.format(PROJECT_NAME))
+        shutil.copy(defaultfile, configfile)
+        self.test_create_plain()
+        self.assertTrue(self.default_args['virtualenv_dir'] in open(configfile).read())
+
+    def test_create_with_requirements(self):
+        open(os.path.join(self.pdir, 'requirements.txt'), 'w').write('sh')
+        self.test_create_plain()
+        sh_installed = False
+        for path, dirs, files in os.walk(self.default_args['virtualenv_dir']):
+            if 'sh.py' in files:
+                sh_installed = True
+                break
+        self.assertTrue(sh_installed, 'sh module is not installed')
+
+    def test_create_twice(self):
+        self.test_create_plain()
+        with raises(AssertionError):
+            self.test_create_plain()
+
     def test_erase(self):
         self.test_create_plain()
-        ret = self._fence('-q', '-e')
+        ret = self._fence('-e')
         self.assertEqual(ret, 0, 'erase command failed')
+        self.assertFalse(os.path.exists(self.default_args['virtualenv_dir']))
+
+    def test_erase_does_not_exist(self):
+        ret = self._fence('-e')
+        self.assertEqual(ret, 1, 'there should be nothing to erase')
         self.assertFalse(os.path.exists(self.default_args['virtualenv_dir']))
 
     def _test_activate(self, shell, script):
@@ -110,7 +139,7 @@ class TestFencepy(TestCase):
         os.environ['SHELL'] = shell
         tempout = StringIO()
         with redirected(out=tempout):
-            ret = self._fence('-q', '-a')
+            ret = self._fence('-a')
             output = tempout.getvalue()
         self.assertEqual(ret, 0, 'activate printing failed')
         self.assertTrue(self.default_args['virtualenv_dir'] in output)
@@ -124,3 +153,7 @@ class TestFencepy(TestCase):
 
     def test_activate_bash(self):
         self._test_activate('bash', 'activate')
+
+    def test_multiple_modes(self):
+        ret = self._fence('-a', '-c', '-e')
+        self.assertEqual(ret, 1, 'multiple modes are not allowed')
