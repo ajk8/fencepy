@@ -5,7 +5,17 @@ Standardized fencing off of python virtual environments on a per-project
 basis. The idea is to take a directory as an input and create and manage
 a python virtual environment in a known location.
 
-|Build Status| |Coverage Status|
+.. image:: https://api.travis-ci.org/ajk8/fencepy.png?branch=master
+    :target: http://travis-ci.org/ajk8/fencepy
+.. image:: https://coveralls.io/repos/ajk8/fencepy/badge.png?branch=master
+    :target: https://coveralls.io/r/ajk8/fencepy
+.. image:: https://pypip.in/v/fencepy/badge.png
+    :target: https://pypi.python.org/pypi/fencepy/
+.. image:: https://pypip.in/d/fencepy/badge.png
+    :target: https://pypi.python.org/pypi/fencepy/
+.. image:: https://pypip.in/wheel/fencepy/badge.png
+    :target: https://pypi.python.org/pypi/fencepy/
+    :alt: Wheel Status
 
 Opinionated hooks
 -----------------
