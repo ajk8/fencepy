@@ -1,21 +1,11 @@
 fencepy
 =======
 
+|Build Status| |Coverage Status| |Development Status| |Latest Version| |Download Stats| |Python Versions| |License|
+
 Standardized fencing off of python virtual environments on a per-project
 basis. The idea is to take a directory as an input and create and manage
 a python virtual environment in a known location.
-
-.. image:: https://api.travis-ci.org/ajk8/fencepy.png?branch=master
-    :target: http://travis-ci.org/ajk8/fencepy
-.. image:: https://coveralls.io/repos/ajk8/fencepy/badge.png?branch=master
-    :target: https://coveralls.io/r/ajk8/fencepy
-.. image:: https://pypip.in/v/fencepy/badge.png
-    :target: https://pypi.python.org/pypi/fencepy/
-.. image:: https://pypip.in/d/fencepy/badge.png
-    :target: https://pypi.python.org/pypi/fencepy/
-.. image:: https://pypip.in/wheel/fencepy/badge.png
-    :target: https://pypi.python.org/pypi/fencepy/
-    :alt: Wheel Status
 
 Opinionated hooks
 -----------------
@@ -84,6 +74,29 @@ other than linux and is not expected to function in other environments
 without some work.
 
 .. |Build Status| image:: https://travis-ci.org/ajk8/fencepy.png?branch=master
-   :target: https://travis-ci.org/ajk8/fencepy
+    :target: https://travis-ci.org/ajk8/fencepy
+    :alt: Build status
 .. |Coverage Status| image:: https://coveralls.io/repos/ajk8/fencepy/badge.png?branch=master
-   :target: https://coveralls.io/r/ajk8/fencepy?branch=master
+    :target: https://coveralls.io/r/ajk8/fencepy?branch=master
+    :alt: Testing coverage
+.. |Python Versions| image:: https://pypip.in/py_versions/fencepy/badge.svg
+    :target: https://pypi.python.org/pypi/fencepy/
+    :alt: Supported Python versions
+.. |Latest Version| image:: https://pypip.in/v/fencepy/badge.png
+    :target: https://pypi.python.org/pypi/fencepy/
+    :alt: Latest Version
+.. |Download Stats| image:: https://pypip.in/d/fencepy/badge.png
+    :target: https://pypi.python.org/pypi/fencepy/
+    :alt: Downloads/month
+.. |Egg Status| image:: https://pypip.in/egg/fencepy/badge.svg
+    :target: https://pypi.python.org/pypi/fencepy/
+    :alt: Egg Status
+.. |Wheel Status| image:: https://pypip.in/wheel/fencepy/badge.png
+    :target: https://pypi.python.org/pypi/fencepy/
+    :alt: Wheel Status
+.. |License| image:: https://pypip.in/license/fencepy/badge.svg
+    :target: https://pypi.python.org/pypi/fencepy/
+    :alt: License
+.. |Development Status| image:: https://pypip.in/status/fencepy/badge.svg
+    :target: https://pypi.python.org/pypi/fencepy/
+    :alt: Development Status
