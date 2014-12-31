@@ -1,7 +1,7 @@
 fencepy
 =======
 
-|Build Status| |Coverage Status| |Development Status| |Latest Version| |Download Stats| |Python Versions| |License|
+|Build Status| |Coverage Status| |Development Status| |Latest Version| |Download Stats| |Python Versions|
 
 Standardized fencing off of python virtual environments on a per-project
 basis. The idea is to take a directory as an input and create and manage
