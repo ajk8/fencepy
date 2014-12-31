@@ -5,6 +5,8 @@ MANIFEST
 dist/
 *.egg/
 *.egg-info/
+.cache/
+.coverage
 
 # sublime files
 *.sublime-project

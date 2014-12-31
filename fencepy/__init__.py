@@ -26,6 +26,7 @@ l.basicConfig(filename=os.path.join(FENCEPY_ROOT, 'fencepy.log'))
 VENV_ROOT = os.path.join(FENCEPY_ROOT, 'virtualenvs')
 QUIET = False
 
+
 def _get_args():
     """Do all parsing and processing for command-line arguments"""
 
@@ -134,7 +135,7 @@ def _pseudo_merge_dict(dto, dfrom):
 
     # do the work
     for k, v in dfrom.items():
-        if not k in dto.keys():
+        if k not in dto.keys():
             dto[k] = v
 
         # recurse on further dicts
@@ -167,7 +168,7 @@ def _create(args):
 
     # break out various args for convenience
     vdir = args['virtualenv_dir']
-    pdir = args['dir'] # p for project
+    pdir = args['dir']  # p for project
 
     # make sure the directory doesn't already exist
     if os.path.exists(vdir):

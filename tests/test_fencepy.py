@@ -12,6 +12,7 @@ if sys.version.startswith('2'):
 else:
     from io import StringIO
 
+
 @contextmanager
 def redirected(out=sys.stdout, err=sys.stderr):
     saved = sys.stdout, sys.stderr
@@ -24,6 +25,7 @@ def redirected(out=sys.stdout, err=sys.stderr):
 PROJECT_NAME = 'fencepytest'
 ORIGINAL_DIR = os.getcwd()
 ORIGINAL_ARGV = copy.copy(sys.argv)
+
 
 class TestFencepy(TestCase):
 
@@ -122,5 +124,3 @@ class TestFencepy(TestCase):
 
     def test_activate_bash(self):
         self._test_activate('bash', 'activate')
-
-
