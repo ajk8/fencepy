@@ -2,12 +2,12 @@ from setuptools import setup
 
 setup(
     name='fencepy',
-    version='0.1',
+    version='0.2',
     description='Standardized fencing off of python virtual environments on a per-project basis',
     author='Adam Kaufman',
     author_email='kaufman.blue@gmail.com',
     url='https://github.com/ajk8/fencepy',
-    download_url='https://github.com/ajk8/fencepy/tarball/0.1',
+    download_url='https://github.com/ajk8/fencepy/tarball/0.2',
     license='MIT',
     packages=['fencepy'],
     entry_points={'console_scripts': ['fencepy = fencepy:fence']},
