@@ -24,6 +24,7 @@ import logging as l
 l.basicConfig(filename=os.path.join(FENCEPY_ROOT, 'fencepy.log'))
 
 VENV_ROOT = os.path.join(FENCEPY_ROOT, 'virtualenvs')
+QUIET = False
 
 def _get_args():
     """Do all parsing and processing for command-line arguments"""
@@ -47,8 +48,13 @@ def _get_args():
                    help='Silence all console output')
     args = vars(p.parse_args())
 
+    # make sure we area globally quiet
+    if args['quiet']:
+        global QUIET
+        QUIET = True
+
     # set up logging
-    if not args['quiet']:
+    else:
         f = l.Formatter('[%(levelname)s] %(message)s')
         h = l.StreamHandler()
         h.setFormatter(f)
@@ -59,11 +65,11 @@ def _get_args():
     if not args['dir']:
         args['dir'] = os.getcwd()
     if not args['plain']:
-        output = sh.git('rev-parse', '--show-toplevel')
-        if not output.exit_code:
+        try:
+            output = sh.git('rev-parse', '--show-toplevel')
             args['dir'] = str(output).strip()
-        else:
-            l.error("tried to handle {0} as a git repository but it isn't one".format(args['dir']))
+        except sh.ErrorReturnCode:
+            l.warning("tried to handle {0} as a git repository but it isn't one".format(args['dir']))
 
     # reset the virtualenv root, if necessary
     if not args['virtualenv_dir']:
@@ -152,7 +158,8 @@ def _locate_subdirs(pattern, root):
 
 def _print(line):
     """Wrapper function for printing sh output is necessary for python 2 compatibility"""
-    print(line)
+    if not QUIET:
+        print(line)
 
 
 def _create(args):
@@ -167,26 +174,29 @@ def _create(args):
         l.error('virtual environment already exists, quitting')
         return 1
 
+    # also make sure the project dir does exist
+    if not os.path.exists(pdir):
+        l.error('{0} does not exist, quitting'.format(pdir))
+        return 1
+
     # go ahead and create the environment
-    old_argv = copy.copy(sys.argv)
-    sys.argv = ['virtualenv', vdir]
-    l.info('creating virtual environment')
-    print(''.ljust(40, '='))
-    ret = virtualenv.main()
-    print(''.ljust(40, '='))
-    sys.argv = old_argv
-    if ret:
-        l.error('there was a problem: (TODO: get output from virtualenv.main())')
+    virtualenv = os.path.join(os.path.dirname(sys.argv[0]), 'virtualenv')
+    _print(''.ljust(40, '='))
+    output = sh.Command(virtualenv)(vdir, _out=_print, _err=_print)
+    output.wait()
+    _print(''.ljust(40, '='))
+    if output.exit_code:
+        l.error('there was a problem: {0}'.format(str(output)))
         return 1
 
     # install requirements, if they exist
     rtxt = os.path.join(pdir, 'requirements.txt')
     if os.path.exists(rtxt):
         l.info('loading requirements from {0}'.format(rtxt))
-        print(''.ljust(40, '='))
+        _print(''.ljust(40, '='))
         output = sh.Command(os.path.join(vdir, 'bin', 'pip'))('install', '-r', rtxt, _out=_print, _err=_print)
         output.wait()
-        print(''.ljust(40, '='))
+        _print(''.ljust(40, '='))
         if output.exit_code:
             return 1
         l.info('finished installing requirements')
