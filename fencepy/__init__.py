@@ -59,7 +59,12 @@ def _get_args():
         h = l.StreamHandler()
         h.setFormatter(f)
         l.getLogger('').addHandler(h)
-    l.getLogger('').setLevel(l.DEBUG if args['verbose'] else l.INFO)
+
+    if args['verbose']:
+        l.getLogger('').setLevel(l.DEBUG)
+    else:
+        l.getLogger('').setLevel(l.INFO)
+        l.getLogger('sh').setLevel(l.ERROR)
 
     # we need to do some work to get the root directory we care about here
     if not args['dir']:
