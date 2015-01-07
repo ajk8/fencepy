@@ -15,7 +15,6 @@ import copy
 import sys
 import sh
 import plugins
-from helpers import QUIET, qprint as _print
 
 FENCEPY_ROOT = os.path.join(os.path.expanduser('~'), '.fencepy')
 if not os.path.exists(FENCEPY_ROOT):
@@ -49,12 +48,8 @@ def _get_args():
                    help='Silence all console output')
     args = vars(p.parse_args())
 
-    # make sure we area globally quiet
-    if args['quiet']:
-        helpers.QUIET = True
-
     # set up logging
-    else:
+    if not args['quiet']:
         f = l.Formatter('[%(levelname)s] %(message)s')
         h = l.StreamHandler()
         h.setFormatter(f)
@@ -62,6 +57,7 @@ def _get_args():
 
     if args['verbose']:
         l.getLogger('').setLevel(l.DEBUG)
+        l.getLogger('sh').setLevel(l.INFO)
     else:
         l.getLogger('').setLevel(l.INFO)
         l.getLogger('sh').setLevel(l.ERROR)
@@ -152,10 +148,10 @@ def _create(args):
 
     # go ahead and create the environment
     virtualenv = os.path.join(os.path.dirname(sys.argv[0]), 'virtualenv')
-    _print(''.ljust(40, '='))
-    output = sh.Command(virtualenv)(vdir, _out=_print, _err=_print)
+    l.debug(''.ljust(40, '='))
+    output = sh.Command(virtualenv)(vdir, _out=l.debug, _err=l.error)
     output.wait()
-    _print(''.ljust(40, '='))
+    l.debug(''.ljust(40, '='))
     if output.exit_code:
         l.error('there was a problem: {0}'.format(str(output)))
         return 1

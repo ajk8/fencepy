@@ -7,20 +7,12 @@ Shared/generic functions
 import os
 import fnmatch
 
-QUIET = False
-
-
-def qprint(line):
-    """Wrapper function for printing sh output is necessary for python 2 compatibility"""
-    if not QUIET:
-        print(line)
-
 
 def pseudo_merge_dict(dto, dfrom):
     """Recursively merge dict objects, overwriting any non-dict values"""
 
     # a quick type check
-    if not type(dfrom) == dict:
+    if not (type(dto) == dict and type(dfrom) == dict):
         raise ValueError('non-dict passed into _psuedo_merge_dict')
 
     # do the work
@@ -29,7 +21,7 @@ def pseudo_merge_dict(dto, dfrom):
             dto[k] = v
 
         # recurse on further dicts
-        if type(dfrom[k]) == dict:
+        elif type(dfrom[k]) == dict:
             pseudo_merge_dict(dto[k], dfrom[k])
 
         # everything else can just be overwritten

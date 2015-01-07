@@ -7,7 +7,7 @@ Plugins for use during environment creation
 import sh
 import json
 import os
-from .helpers import pseudo_merge_dict, locate_subdirs, QUIET, qprint as _print
+from .helpers import pseudo_merge_dict, locate_subdirs
 
 # set up logging
 import logging
@@ -25,10 +25,10 @@ def install_requirements(args):
     rtxt = os.path.join(pdir, 'requirements.txt')
     if os.path.exists(rtxt):
         l.info('loading requirements from {0}'.format(rtxt))
-        _print(''.ljust(40, '='))
-        output = sh.Command(os.path.join(vdir, 'bin', 'pip'))('install', '-r', rtxt, _out=_print, _err=_print)
+        l.debug(''.ljust(40, '='))
+        output = sh.Command(os.path.join(vdir, 'bin', 'pip'))('install', '-r', rtxt, _out=l.debug, _err=l.error)
         output.wait()
-        _print(''.ljust(40, '='))
+        l.debug(''.ljust(40, '='))
         if output.exit_code:
             return 1
         l.info('finished installing requirements')
