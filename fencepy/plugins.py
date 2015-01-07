@@ -32,6 +32,7 @@ def install_requirements(args):
         if output.exit_code:
             return 1
         l.info('finished installing requirements')
+        return 0
 
 
 def install_sublime(args):
@@ -59,3 +60,34 @@ def install_sublime(args):
         pseudo_merge_dict(cfg_dict, dict_data)
         json.dump(cfg_dict, open(scfg, 'w'), indent=4, separators=(', ', ': '), sort_keys=True)
         l.info('successfully configured sublime linter')
+
+    return 0
+
+
+def install_ps1(args):
+    """Change the PS1 environment name in activate scripts"""
+
+    mods = {
+        'activate': {
+            'from': '(`basename \\"$VIRTUAL_ENV\\"`)',
+            'to': '(`basename \\`dirname \\"$VIRTUAL_ENV\\"\\``-`basename \\"$VIRTUAL_ENV\\"`)'
+        },
+        'activate.csh': {
+            'from': '`basename "$VIRTUAL_ENV"`',
+            'to': '`basename \\`dirname $VIRTUAL_ENV\\``-`basename "$VIRTUAL_ENV"`'
+        },
+        'activate.fish': {
+            'from': '(basename "$VIRTUAL_ENV")',
+            'to': '(printf "%s-%s" (basename (dirname "$VIRTUAL_ENV")) (basename "$VIRTUAL_ENV"))'
+        }
+    }
+
+    vdir = args['virtualenv_dir']
+
+    for filename, trans in mods.items():
+        filepath = os.path.join(vdir, 'bin', filename)
+        text = open(filepath, 'r').read()
+        if trans['from'] in text:
+            open(filepath, 'w').write(text.replace(trans['from'], trans['to']))
+
+    return 0

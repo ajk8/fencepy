@@ -97,7 +97,7 @@ def _get_args():
         args['activate'] = True
 
     # plugins
-    args['plugins'] = ['sublime', 'requirements']
+    args['plugins'] = ['sublime', 'requirements', 'ps1']
 
     return args
 
