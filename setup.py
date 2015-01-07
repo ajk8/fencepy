@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='fencepy',
-    version='0.2',
+    version='0.3',
     description='Standardized fencing off of python virtual environments on a per-project basis',
     author='Adam Kaufman',
     author_email='kaufman.blue@gmail.com',
