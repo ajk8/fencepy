@@ -38,7 +38,7 @@ class TestFencepy(TestCase):
 
     def _get_arg_dict(self, *args):
         sys.argv = ['fencepy', '-q'] + list(args)
-        ret = fencepy._get_args()
+        ret = fencepy.main._get_args()
         sys.argv = ORIGINAL_ARGV
         return ret
 
