@@ -7,7 +7,6 @@ configuration for users of sublime text
 """
 
 import argparse
-import fnmatch
 import json
 import os
 import shutil
@@ -15,6 +14,8 @@ import virtualenv
 import copy
 import sys
 import sh
+import plugins
+from helpers import QUIET, qprint as _print
 
 FENCEPY_ROOT = os.path.join(os.path.expanduser('~'), '.fencepy')
 if not os.path.exists(FENCEPY_ROOT):
@@ -24,7 +25,6 @@ import logging as l
 l.basicConfig(filename=os.path.join(FENCEPY_ROOT, 'fencepy.log'))
 
 VENV_ROOT = os.path.join(FENCEPY_ROOT, 'virtualenvs')
-QUIET = False
 
 
 def _get_args():
@@ -51,8 +51,7 @@ def _get_args():
 
     # make sure we area globally quiet
     if args['quiet']:
-        global QUIET
-        QUIET = True
+        helpers.QUIET = True
 
     # set up logging
     else:
@@ -96,6 +95,9 @@ def _get_args():
     elif modecount == 0:
         args['activate'] = True
 
+    # plugins
+    args['plugins'] = ['sublime', 'requirements']
+
     return args
 
 
@@ -126,43 +128,6 @@ def _activate(args):
     return 0
 
 
-def _pseudo_merge_dict(dto, dfrom):
-    """Recursively merge dict objects, overwriting any non-dict values"""
-
-    # a quick type check
-    if not type(dfrom) == dict:
-        raise ValueError('non-dict passed into _psuedo_merge_dict')
-
-    # do the work
-    for k, v in dfrom.items():
-        if k not in dto.keys():
-            dto[k] = v
-
-        # recurse on further dicts
-        if type(dfrom[k]) == dict:
-            _pseudo_merge_dict(dto[k], dfrom[k])
-
-        # everything else can just be overwritten
-        else:
-            dto[k] = dfrom[k]
-
-
-def _locate_subdirs(pattern, root):
-    """Get a list of all subdirectories contained underneath a root"""
-
-    ret = []
-    for path, dirs, files in os.walk(os.path.abspath(root)):
-        for subdir in fnmatch.filter(dirs, pattern):
-            ret.append(os.path.join(path, subdir))
-    return ret
-
-
-def _print(line):
-    """Wrapper function for printing sh output is necessary for python 2 compatibility"""
-    if not QUIET:
-        print(line)
-
-
 def _create(args):
     """Create a virtualenv for the current project"""
 
@@ -190,36 +155,10 @@ def _create(args):
         l.error('there was a problem: {0}'.format(str(output)))
         return 1
 
-    # install requirements, if they exist
-    rtxt = os.path.join(pdir, 'requirements.txt')
-    if os.path.exists(rtxt):
-        l.info('loading requirements from {0}'.format(rtxt))
-        _print(''.ljust(40, '='))
-        output = sh.Command(os.path.join(vdir, 'bin', 'pip'))('install', '-r', rtxt, _out=_print, _err=_print)
-        output.wait()
-        _print(''.ljust(40, '='))
-        if output.exit_code:
+    # plugins
+    for plugin_name in args['plugins']:
+        if getattr(plugins, 'install_{0}'.format(plugin_name))(args) == 1:
             return 1
-        l.info('finished installing requirements')
-
-    # set up the sublime linter, if appropriate
-    scfg = None
-    for filename in os.listdir(pdir):
-        if filename.endswith('.sublime-project'):
-            scfg = os.path.join(pdir, filename)
-            break
-    if scfg:
-        l.debug('configuring sublime linter in file {0}'.format(scfg))
-        cfg_dict = json.load(open(scfg))
-        dict_data = {
-            'SublimeLinter': {
-                'paths': {'linux': [os.path.join(vdir, 'bin')]},
-                'python_paths': {'linux': _locate_subdirs('site-packages', vdir)}
-            }
-        }
-        _pseudo_merge_dict(cfg_dict, dict_data)
-        json.dump(cfg_dict, open(scfg, 'w'), indent=4, separators=(', ', ': '), sort_keys=True)
-        l.info('successfully configured sublime linter')
 
     return 0
 
