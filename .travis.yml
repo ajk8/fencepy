@@ -8,3 +8,7 @@ python:
 before_script: pip install -U -r test-requirements.txt
 script: py.test tests --doctest-modules --pep8 fencepy -v --cov fencepy --cov-report term-missing
 after_success: coveralls
+notifications:
+  email:
+    - kaufman.blue@gmail.com
+
