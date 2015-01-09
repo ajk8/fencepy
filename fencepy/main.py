@@ -144,7 +144,7 @@ def _create(args):
         return 1
 
     # go ahead and create the environment
-    virtualenv = os.path.join(os.path.dirname(sys.argv[0]), 'virtualenv')
+    virtualenv = os.path.join(os.path.dirname(sys.executable), 'virtualenv')
     l.debug(''.ljust(40, '='))
     output = sh.Command(virtualenv)(vdir, _out=l.debug, _err=l.error)
     output.wait()
