@@ -7,6 +7,15 @@ Standardized fencing off of python virtual environments on a per-project
 basis. The idea is to take a directory as an input and create and manage
 a python virtual environment in a known location.
 
+How does it work?
+-----------------
+
+`fencepy` is fairly simple. After parsing arguments, it calls out to the
+correct copy of `virtualenv` (based on the location of the running python
+interpreter) with a pre-generated base directory. Upon successful creation
+of the virtual environment, it applies various modifications based on the
+contents of the directory from which it was run.
+
 Opinionated hooks
 -----------------
 
@@ -69,9 +78,24 @@ Cross-platform support
 ~~~~~~~~~~~~~~~~~~~~~~
 
 During initial implementation, care was taken to make the library mostly
-platform-independent. However, it has not been tested with anything
-other than linux and is not expected to function in other environments
-without some work.
+platform-independent. However, it has since drifted in a linux-specific
+direction. By eliminating use of the `sh` module, it could be made to work
+in windows. If anyone is interested, feel free to submit a pull request.
+
+Extending fencepy
+~~~~~~~~~~~~~~~~~
+
+Additional functionality should be very easy to implement. Each of the hooks
+mentioned above is implemented as a "plugin" that takes the full dict of parsed
+arguments as input. Additionally, inverse cleanup methods are planned for the
+future.
+
+Alternatives
+~~~~~~~~~~~~
+
+* virtualenvwrapper_
+
+.. _virtualenvwrapper: http://virtualenvwrapper.readthedocs.org/en/latest/
 
 .. |Build Status| image:: https://travis-ci.org/ajk8/fencepy.png?branch=master
     :target: https://travis-ci.org/ajk8/fencepy
