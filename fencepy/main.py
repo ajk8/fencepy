@@ -67,6 +67,9 @@ def _get_args():
         except sh.ErrorReturnCode:
             l.warning("tried to handle {0} as a git repository but it isn't one".format(args['dir']))
 
+    # keep track of the python version for later
+    args['pyversion'] = '.'.join([str(x) for x in sys.version_info[:2]])
+
     # reset the virtualenv root, if necessary
     if not args['virtualenv_dir']:
 
@@ -81,8 +84,7 @@ def _get_args():
             if tokens[-1] == '':
                 tokens = tokens[:-1]
             prjpart = '.'.join([os.path.basename(args['dir']), '.'.join([d[0] for d in tokens])])
-            verpart = '.'.join([str(x) for x in sys.version_info[:2]])
-            args['virtualenv_dir'] = os.path.join(VENV_ROOT, prjpart, verpart)
+            args['virtualenv_dir'] = os.path.join(VENV_ROOT, '-'.join((prjpart, args['pyversion'])))
 
     # set the mode properly
     modecount = [args['activate'], args['create'], args['erase']].count(True)

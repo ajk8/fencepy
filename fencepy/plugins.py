@@ -67,18 +67,20 @@ def install_sublime(args):
 def install_ps1(args):
     """Change the PS1 environment name in activate scripts"""
 
+    ps1str = '-'.join((os.path.basename(args['dir']), args['pyversion']))
+
     mods = {
         'activate': {
             'from': '(`basename \\"$VIRTUAL_ENV\\"`)',
-            'to': '(`basename \\`dirname \\"$VIRTUAL_ENV\\"\\``-`basename \\"$VIRTUAL_ENV\\"`)'
+            'to': ps1str
         },
         'activate.csh': {
             'from': '`basename "$VIRTUAL_ENV"`',
-            'to': '`basename \\`dirname $VIRTUAL_ENV\\``-`basename "$VIRTUAL_ENV"`'
+            'to': ps1str
         },
         'activate.fish': {
             'from': '(basename "$VIRTUAL_ENV")',
-            'to': '(printf "%s-%s" (basename (dirname "$VIRTUAL_ENV")) (basename "$VIRTUAL_ENV"))'
+            'to': ps1str
         }
     }
 
