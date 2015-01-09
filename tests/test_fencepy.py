@@ -6,6 +6,7 @@ import shutil
 import copy
 import sys
 import sh
+import uuid
 from py.test import raises
 from contextlib import contextmanager
 if sys.version.startswith('2'):
@@ -23,7 +24,6 @@ def redirected(out=sys.stdout, err=sys.stderr):
     finally:
         sys.stdout, sys.stderr = saved
 
-PROJECT_NAME = 'fencepytest'
 ORIGINAL_DIR = os.getcwd()
 ORIGINAL_ARGV = copy.copy(sys.argv)
 
@@ -44,7 +44,8 @@ class TestFencepy(TestCase):
 
     def setUp(self):
         self.tempdir = tempfile.mkdtemp()
-        self.pdir = os.path.join(self.tempdir, PROJECT_NAME)
+        self.pname = str(uuid.uuid4())
+        self.pdir = os.path.join(self.tempdir, self.pname)
         os.mkdir(self.pdir)
         os.chdir(self.pdir)
         self.default_args = self._get_arg_dict()
@@ -103,7 +104,7 @@ class TestFencepy(TestCase):
     def test_create_with_sublime(self):
         testsdir = os.path.dirname(os.path.realpath(__file__))
         defaultfile = os.path.join(testsdir, 'sublime-project.template')
-        configfile = os.path.join(self.pdir, '{0}.sublime-project'.format(PROJECT_NAME))
+        configfile = os.path.join(self.pdir, '{0}.sublime-project'.format(self.pname))
         shutil.copy(defaultfile, configfile)
         self.test_create_plain()
         self.assertTrue(self.default_args['virtualenv_dir'] in open(configfile).read())
