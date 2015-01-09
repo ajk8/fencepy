@@ -8,7 +8,11 @@ dist/
 .cache/
 .coverage
 build/
+.pyve/
 
 # sublime files
 *.sublime-project
 *.sublime-workspace
+
+# intellij files
+.idea/
