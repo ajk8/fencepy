@@ -5,24 +5,14 @@ import os
 import shutil
 import copy
 import sys
-import sh
+import platform
 import uuid
 from py.test import raises
-from contextlib import contextmanager
 if sys.version.startswith('2'):
     from StringIO import StringIO
 else:
     from io import StringIO
-
-
-@contextmanager
-def redirected(out=sys.stdout, err=sys.stderr):
-    saved = sys.stdout, sys.stderr
-    sys.stdout, sys.stderr = out, err
-    try:
-        yield
-    finally:
-        sys.stdout, sys.stderr = saved
+from fencepy.helpers import getoutputoserror, redirected
 
 ORIGINAL_DIR = os.getcwd()
 ORIGINAL_ARGV = copy.copy(sys.argv)
@@ -68,7 +58,7 @@ class TestFencepy(TestCase):
         self._create_and_assert()
 
     def test_create_git(self):
-        sh.git.init('.')
+        getoutputoserror('git init .')
         os.mkdir('test')
         os.chdir('test')
         self._create_and_assert()
@@ -107,17 +97,22 @@ class TestFencepy(TestCase):
         configfile = os.path.join(self.pdir, '{0}.sublime-project'.format(self.pname))
         shutil.copy(defaultfile, configfile)
         self.test_create_plain()
-        self.assertTrue(self.default_args['virtualenv_dir'] in open(configfile).read())
+
+        # in windows, this path will have \\ instead of \
+        path = self.default_args['virtualenv_dir']
+        if platform.system() == 'Windows':
+            path = path.replace('\\', '\\\\')
+        self.assertTrue(path in open(configfile).read())
 
     def test_create_with_requirements(self):
-        open(os.path.join(self.pdir, 'requirements.txt'), 'w').write('sh')
+        open(os.path.join(self.pdir, 'requirements.txt'), 'w').write('requests')
         self.test_create_plain()
-        sh_installed = False
+        requests_installed = False
         for path, dirs, files in os.walk(self.default_args['virtualenv_dir']):
-            if 'sh.py' in files:
-                sh_installed = True
+            if 'requests' in dirs:
+                requests_installed = True
                 break
-        self.assertTrue(sh_installed, 'sh module is not installed')
+        self.assertTrue(requests_installed, 'requests module is not installed')
 
     def test_create_twice(self):
         self.test_create_plain()
@@ -135,6 +130,9 @@ class TestFencepy(TestCase):
         self.assertEqual(ret, 1, 'there should be nothing to erase')
         self.assertFalse(os.path.exists(self.default_args['virtualenv_dir']))
 
+    # This can only be used to test for unix-base shells. There is
+    # no way to reliably test for .bat and .ps1 because the derivation
+    # method depends on functions being available on the path
     def _test_activate(self, shell, script):
         self.test_create_plain()
         os.environ['SHELL'] = shell

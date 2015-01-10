@@ -8,8 +8,8 @@ import argparse
 import os
 import shutil
 import sys
-import sh
 from . import plugins
+from .helpers import getoutputoserror, findpybin
 
 FENCEPY_ROOT = os.path.join(os.path.expanduser('~'), '.fencepy')
 if not os.path.exists(FENCEPY_ROOT):
@@ -37,6 +37,8 @@ def _get_args():
                    help='Create the fenced environment')
     p.add_argument('-e', '--erase', action='store_true',
                    help='Erase the fenced environment')
+    p.add_argument('-P', '--plugins',
+                   help='Comma-separated list of plugins to apply, defaults to all plugins')
     p.add_argument('-v', '--verbose', '--debug', action='store_true',
                    help='Print debug logging')
     p.add_argument('-q', '--quiet', action='store_true',
@@ -62,10 +64,10 @@ def _get_args():
         args['dir'] = os.getcwd()
     if not args['plain']:
         try:
-            output = sh.git('rev-parse', '--show-toplevel')
-            args['dir'] = str(output).strip()
-        except sh.ErrorReturnCode:
-            l.warning("tried to handle {0} as a git repository but it isn't one".format(args['dir']))
+            output = getoutputoserror('git rev-parse --show-toplevel')
+            args['dir'] = output.strip()
+        except OSError as e:
+            l.debug("tried to handle {0} as a git repository but it isn't one".format(args['dir']))
 
     # keep track of the python version for later
     args['pyversion'] = '.'.join([str(x) for x in sys.version_info[:2]])
@@ -79,7 +81,9 @@ def _get_args():
             args['virtualenv_dir'] = os.path.join(VENV_ROOT, os.path.basename(args['dir']))
 
         else:
-            tokens = os.path.dirname(args['dir']).split(os.path.sep)
+            # need the realpath here because in some circumstances windows paths get passed
+            # with a '/' and others see it coming in as a '\'
+            tokens = os.path.dirname(os.path.realpath(args['dir'])).split(os.path.sep)
             tokens.reverse()
             if tokens[-1] == '':
                 tokens = tokens[:-1]
@@ -94,7 +98,7 @@ def _get_args():
         args['activate'] = True
 
     # plugins
-    args['plugins'] = ['sublime', 'requirements', 'ps1']
+    args['plugins'] = args['plugins'].split(',') if args['plugins'] else ['sublime', 'requirements', 'ps1']
 
     return args
 
@@ -110,15 +114,24 @@ def _activate(args):
         l.error('virtual environment does not exist, create it with -c')
         return 1
 
-    # right now this only supports linux
-    # we'll have to figure out how to support windows in the future
-    shell = os.environ['SHELL']
-    if shell.endswith('fish'):
-        apath = os.path.join(vdir, 'bin', 'activate.fish')
-    elif shell.endswith('csh'):
-        apath = os.path.join(vdir, 'bin', 'activate.csh')
+    # unix-based shells
+    if 'SHELL' in os.environ.keys():
+        if os.environ['SHELL'].endswith('fish'):
+            apath = os.path.join(vdir, 'bin', 'activate.fish')
+        elif os.environ['SHELL'].endswith('csh'):
+            apath = os.path.join(vdir, 'bin', 'activate.csh')
+        else:
+            apath = os.path.join(vdir, 'bin', 'activate')
+
+    # windows -- get-help will always raise the OSError, but we can still use it for this
     else:
-        apath = os.path.join(vdir, 'bin', 'activate')
+        try:
+            getoutputoserror('get-help')
+        except OSError as e:
+            if 'not recognized' in str(e):
+                apath = os.path.join(vdir, 'Scripts', 'activate.bat')
+            else:
+                apath = os.path.join(vdir, 'Scripts', 'activate.ps1')
 
     # i don't think it's possible to set the calling environment,
     # so we'll just print the path to the script
@@ -143,14 +156,19 @@ def _create(args):
         l.error('{0} does not exist, quitting'.format(pdir))
         return 1
 
+    # make sure the virtualenv root exists
+    if not os.path.exists(os.path.dirname(vdir)):
+        os.makedirs(os.path.dirname(vdir))
+
     # go ahead and create the environment
-    virtualenv = os.path.join(os.path.dirname(sys.executable), 'virtualenv')
-    l.debug(''.ljust(40, '='))
-    output = sh.Command(virtualenv)(vdir, _out=l.debug, _err=l.error)
-    output.wait()
-    l.debug(''.ljust(40, '='))
-    if output.exit_code:
-        l.error('there was a problem: {0}'.format(str(output)))
+    virtualenv = findpybin('virtualenv', sys.executable)
+    try:
+        output = getoutputoserror('{0} {1}'.format(virtualenv, vdir))
+        l.debug(''.ljust(40, '='))
+        l.debug(output)
+        l.debug(''.ljust(40, '='))
+    except OSError as e:
+        l.error(str(e))
         return 1
 
     # plugins

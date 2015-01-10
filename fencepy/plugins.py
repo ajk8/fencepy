@@ -4,10 +4,11 @@ fencepy.plugins
 Plugins for use during environment creation
 """
 
-import sh
 import json
 import os
-from .helpers import pseudo_merge_dict, locate_subdirs
+import platform
+import sys
+from .helpers import pseudo_merge_dict, locate_subdirs, getoutputoserror, findpybin, getpybindir
 
 # set up logging
 import logging
@@ -25,11 +26,13 @@ def install_requirements(args):
     rtxt = os.path.join(pdir, 'requirements.txt')
     if os.path.exists(rtxt):
         l.info('loading requirements from {0}'.format(rtxt))
-        l.debug(''.ljust(40, '='))
-        output = sh.Command(os.path.join(vdir, 'bin', 'pip'))('install', '-r', rtxt, _out=l.debug, _err=l.error)
-        output.wait()
-        l.debug(''.ljust(40, '='))
-        if output.exit_code:
+        try:
+            output = getoutputoserror('{0} install -r {1}'.format(findpybin('pip', vdir), rtxt))
+            l.debug(''.ljust(40, '='))
+            l.debug(output)
+            l.debug(''.ljust(40, '='))
+        except OSError as e:
+            l.error(str(e))
             return 1
         l.info('finished installing requirements')
         return 0
@@ -53,7 +56,7 @@ def install_sublime(args):
         cfg_dict = json.load(open(scfg))
         dict_data = {
             'SublimeLinter': {
-                'paths': {'linux': [os.path.join(vdir, 'bin')]},
+                'paths': {'linux': [os.path.join(vdir, getpybindir())]},
                 'python_paths': {'linux': locate_subdirs('site-packages', vdir)}
             }
         }
@@ -68,28 +71,54 @@ def install_ps1(args):
     """Change the PS1 environment name in activate scripts"""
 
     ps1str = '-'.join((os.path.basename(args['dir']), args['pyversion']))
-
-    mods = {
-        'activate': {
-            'from': '(`basename \\"$VIRTUAL_ENV\\"`)',
-            'to': ps1str
-        },
-        'activate.csh': {
-            'from': '`basename "$VIRTUAL_ENV"`',
-            'to': ps1str
-        },
-        'activate.fish': {
-            'from': '(basename "$VIRTUAL_ENV")',
-            'to': ps1str
-        }
-    }
-
     vdir = args['virtualenv_dir']
 
+    system = platform.system()
+    if system == 'Linux':
+        subdir = 'bin'
+        mods = {
+            'activate': {
+                'from': '(`basename \\"$VIRTUAL_ENV\\"`)',
+                'to': ps1str
+            },
+            'activate.csh': {
+                'from': '`basename "$VIRTUAL_ENV"`',
+                'to': ps1str
+            },
+            'activate.fish': {
+                'from': '(basename "$VIRTUAL_ENV")',
+                'to': ps1str
+            }
+        }
+    elif system == 'Windows':
+        subdir = 'Scripts'
+        mods = {
+            'activate.bat': {
+                'from': '({0})'.format(os.path.basename(vdir)),
+                'to': '({0})'.format(ps1str)
+            },
+            'activate.ps1': {
+                'from': '$(split-path $env:VIRTUAL_ENV -leaf)',
+                'to': ps1str
+            }
+        }
+    else:
+        l.error('unrecognized platform.system(): {0}, cannot modify ps1 text'.format(system))
+        return 1
+
     for filename, trans in mods.items():
-        filepath = os.path.join(vdir, 'bin', filename)
+        filepath = os.path.join(vdir, subdir, filename)
         text = open(filepath, 'r').read()
         if trans['from'] in text:
-            open(filepath, 'w').write(text.replace(trans['from'], trans['to']))
+
+            # workaround for issue that throws UnicodeDecodeError in windows
+            if filename == 'activate.ps1' and sys.getdefaultencoding() == 'ascii':
+                text = text.decode('utf-8', 'ignore')
+                text = text.replace(trans['from'], trans['to'])
+                text = text.encode('ascii', 'ignore')
+            else:
+                text = text.replace(trans['from'], trans['to'])
+
+            open(filepath, 'w').write(text)
 
     return 0

@@ -13,8 +13,7 @@ setup(
     entry_points={'console_scripts': ['fencepy = fencepy:fence']},
     test_suite='tests',
     install_requires=[
-        'virtualenv>=1.11',
-        'sh>=1.09'
+        'virtualenv>=1.11'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
