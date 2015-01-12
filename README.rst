@@ -49,21 +49,15 @@ virtualenv creation.
 Usage
 -----
 
--  Create a new virtual environment
+``fencepy -c``: Create a new virtual environment
 
-``fencepy -c``
+``. `fencepy -a```: Activate the virtual environment in a bash-like shell
 
--  Activate the virtual environment in a bash-like shell
+``. (fencepy -a)``: Activate the virtual environment in fish shell
 
-``. `fencepy -a```
+``. $(fencepy -a)``: Activate the virtual environment in windows powershell
 
--  Activate the virtual environment in fish shell
-
-``. (fencepy -a)``
-
--  Remove the virtual environment
-
-``fencepy -e``
+``fencepy -e``: Remove the virtual environment
 
 Additional notes
 ----------------
@@ -77,10 +71,9 @@ one project, as they will be stored in separate directories.
 Cross-platform support
 ~~~~~~~~~~~~~~~~~~~~~~
 
-During initial implementation, care was taken to make the library mostly
-platform-independent. However, it has since drifted in a linux-specific
-direction. By eliminating use of the `sh` module, it could be made to work
-in windows. If anyone is interested, feel free to submit a pull request.
+Both Windows and UNIX shells are supported! I have not yet figured out how 
+to activate in one command from within CMD.exe. If anyone knows the solution,
+please let me know!
 
 Extending fencepy
 ~~~~~~~~~~~~~~~~~
