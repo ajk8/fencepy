@@ -68,6 +68,12 @@ def findpybin(name, start):
     if os.path.basename(rootpath) in ('bin', 'Scripts'):
         rootpath = os.path.dirname(rootpath)
 
+    # special case for Ubuntu (and other?) packaged python instances
+    if rootpath == '/usr':
+        binpath = os.path.join('/usr/local/bin', name)
+        if os.path.exists(binpath):
+            return binpath
+
     # we're in a linux-based virtual environment
     if 'bin' in os.listdir(rootpath):
         binpath = os.path.join(rootpath, 'bin', name)

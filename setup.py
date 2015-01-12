@@ -1,13 +1,15 @@
 from setuptools import setup
 
+pkgversion = 0.4.1
+
 setup(
     name='fencepy',
-    version='0.4',
+    version=pkgversion,
     description='Standardized fencing off of python virtual environments on a per-project basis',
     author='Adam Kaufman',
     author_email='kaufman.blue@gmail.com',
     url='https://github.com/ajk8/fencepy',
-    download_url='https://github.com/ajk8/fencepy/tarball/0.4',
+    download_url='https://github.com/ajk8/fencepy/tarball/' + pkgversion,
     license='MIT',
     packages=['fencepy'],
     entry_points={'console_scripts': ['fencepy = fencepy:fence']},
