@@ -9,6 +9,7 @@ dist/
 .coverage
 build/
 .pyve/
+.eggs/
 
 # sublime files
 *.sublime-project
