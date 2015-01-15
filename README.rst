@@ -1,11 +1,19 @@
 fencepy
 =======
 
-|Build Status| |Coverage Status| |Development Status| |Latest Version| |Download Stats| |Python Versions|
+|Development Status| |Latest Version| |Download Stats| |Python Versions| |Wheel Status|
 
 Standardized fencing off of python virtual environments on a per-project
 basis. The idea is to take a directory as an input and create and manage
 a python virtual environment in a known location.
+
+**Master on Linux**
+
+|Travis Status| |Coveralls Status|
+
+**Master on Windows** 
+
+|Appveyor Status|
 
 How does it work?
 -----------------
@@ -71,7 +79,7 @@ one project, as they will be stored in separate directories.
 Cross-platform support
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Both Windows and UNIX shells are supported! I have not yet figured out how 
+Both Windows and UNIX shells are supported! I have not yet figured out how
 to activate in one command from within CMD.exe. If anyone knows the solution,
 please let me know!
 
@@ -90,12 +98,15 @@ Alternatives
 
 .. _virtualenvwrapper: http://virtualenvwrapper.readthedocs.org/en/latest/
 
-.. |Build Status| image:: https://travis-ci.org/ajk8/fencepy.png?branch=master
+.. |Travis Status| image:: https://travis-ci.org/ajk8/fencepy.png?branch=master
     :target: https://travis-ci.org/ajk8/fencepy
-    :alt: Build status
-.. |Coverage Status| image:: https://coveralls.io/repos/ajk8/fencepy/badge.png?branch=master
+    :alt: Travis-ci build status
+.. |Coveralls Status| image:: https://coveralls.io/repos/ajk8/fencepy/badge.png?branch=master
     :target: https://coveralls.io/r/ajk8/fencepy?branch=master
-    :alt: Testing coverage
+    :alt: Coveralls coverage (from travis)
+.. |Appveyor Status| image:: https://ci.appveyor.com/api/projects/status/qss2qb9y95i8oalc?svg=true&branch=master
+    :target: https://ci.appveyor.com/project/ajk8/fencepy
+    :alt: Appveyor build status
 .. |Python Versions| image:: https://pypip.in/py_versions/fencepy/badge.svg
     :target: https://pypi.python.org/pypi/fencepy/
     :alt: Supported Python versions
@@ -117,3 +128,4 @@ Alternatives
 .. |Development Status| image:: https://pypip.in/status/fencepy/badge.svg
     :target: https://pypi.python.org/pypi/fencepy/
     :alt: Development Status
+
