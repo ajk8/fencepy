@@ -24,26 +24,39 @@ VENV_ROOT = os.path.join(FENCEPY_ROOT, 'virtualenvs')
 def _get_args():
     """Do all parsing and processing for command-line arguments"""
 
-    p = argparse.ArgumentParser()
-    p.add_argument('-p', '--plain', action='store_true',
-                   help="Don't treat the working directory as a git repository")
-    p.add_argument('-d', '--dir',
-                   help='Use DIR as the root path for the fenced environment instead of the CWD')
-    p.add_argument('-D', '--virtualenv-dir', metavar='DIR',
-                   help='Use DIR as the root directory for the virtualenv instead of the default')
-    p.add_argument('-a', '--activate', action='store_true',
-                   help='Print the path to the activate script in the fenced environment -- this is the default behavior')
-    p.add_argument('-c', '--create', action='store_true',
-                   help='Create the fenced environment')
-    p.add_argument('-e', '--erase', action='store_true',
-                   help='Erase the fenced environment')
-    p.add_argument('-P', '--plugins',
-                   help='Comma-separated list of plugins to apply, defaults to all plugins')
-    p.add_argument('-v', '--verbose', '--debug', action='store_true',
-                   help='Print debug logging')
-    p.add_argument('-q', '--quiet', action='store_true',
-                   help='Silence all console output')
-    args = vars(p.parse_args())
+    parser = argparse.ArgumentParser(prog='fencepy',
+                                     usage='%(prog)s -a|-c|-e [options]',
+                                     add_help=False)
+
+    # action arguments
+    actions = parser.add_argument_group('actions')
+    actions.add_argument('-a', '--activate', action='store_true',
+                         help='Print the path to the activate script in the fenced environment -- this is the default behavior')
+    actions.add_argument('-c', '--create', action='store_true',
+                         help='Create the fenced environment')
+    actions.add_argument('-e', '--erase', action='store_true',
+                         help='Erase the fenced environment')
+
+    # source and destination arguments
+    paths = parser.add_argument_group('path overrides')
+    paths.add_argument('-p', '--plain', action='store_true',
+                       help="Don't treat the working directory as a git repository")
+    paths.add_argument('-d', '--dir',
+                       help='Use DIR as the root path for the fenced environment instead of the CWD')
+    paths.add_argument('-D', '--virtualenv-dir', metavar='DIR',
+                       help='Use DIR as the root directory for the virtualenv instead of the default')
+
+    # miscellaneous functionality
+    misc = parser.add_argument_group('miscellaneous')
+    misc.add_argument('-P', '--plugins',
+                      help='Comma-separated list of plugins to apply, defaults to all plugins')
+    misc.add_argument('-v', '--verbose', '--debug', action='store_true',
+                      help='Print debug logging')
+    misc.add_argument('-q', '--quiet', action='store_true',
+                      help='Silence all console output')
+    misc.add_argument("-h", "--help", action="help",
+                      help="show this help message and exit")
+    args = vars(parser.parse_args())
 
     # set up logging
     if not args['quiet']:
