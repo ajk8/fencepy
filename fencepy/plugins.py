@@ -14,6 +14,8 @@ from .helpers import pseudo_merge_dict, locate_subdirs, getoutputoserror, findpy
 import logging
 l = logging.getLogger('')
 
+PLUGINS = ['requirements', 'sublime', 'ps1']
+
 
 def install_requirements(args):
     """Install requirements out of requirements.txt, if it exists"""

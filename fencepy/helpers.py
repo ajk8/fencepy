@@ -91,9 +91,20 @@ def findpybin(name, start):
 
 @contextmanager
 def redirected(out=sys.stdout, err=sys.stderr):
+    """Temporarily redirect stdout and/or stderr"""
     saved = sys.stdout, sys.stderr
     sys.stdout, sys.stderr = out, err
     try:
         yield
     finally:
         sys.stdout, sys.stderr = saved
+
+
+def str2bool(value):
+    """Convert various acceptable string values into a bool"""
+    if type(value) in (str, unicode):
+        if value.lower() in ('true', 't', 'yes', 'y', '1'):
+            return True
+        elif value.lower() in ('false', 'f', 'no', 'n', '0'):
+            return False
+    raise ValueError('{0} is not an acceptable boolean value'.format(value))

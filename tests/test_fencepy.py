@@ -21,19 +21,22 @@ ORIGINAL_ARGV = copy.copy(sys.argv)
 class TestFencepy(TestCase):
 
     def _fence(self, *args):
-        sys.argv = ['fencepy'] + list(args)
+        # always include the overridden fencepy directory
+        sys.argv = ['fencepy', '-F', self.fdir] + list(args)
         ret = fencepy.fence()
         sys.argv = ORIGINAL_ARGV
         return ret
 
     def _get_arg_dict(self, *args):
-        sys.argv = ['fencepy', '-q'] + list(args)
+        # always include the overridden fencepy directory
+        sys.argv = ['fencepy', '-F', self.fdir, '-q'] + list(args)
         ret = fencepy.main._get_args()
         sys.argv = ORIGINAL_ARGV
         return ret
 
     def setUp(self):
         self.tempdir = tempfile.mkdtemp()
+        self.fdir = os.path.join(self.tempdir, 'fencepy')
         self.pname = str(uuid.uuid4())
         self.pdir = os.path.join(self.tempdir, self.pname)
         os.mkdir(self.pdir)
@@ -154,5 +157,25 @@ class TestFencepy(TestCase):
         self._test_activate('bash', 'activate')
 
     def test_multiple_modes(self):
-        ret = self._fence('-a', '-c', '-e')
-        self.assertEqual(ret, 1, 'multiple modes are not allowed')
+        with raises(RuntimeError):
+            ret = self._fence('-a', '-c', '-e')
+
+    def test_specify_plugins(self):
+        self.assertTrue(self.default_args['plugins']['requirements'])
+        self.assertTrue(self.default_args['plugins']['ps1'])
+        self.assertTrue(self.default_args['plugins']['sublime'])
+        args = self._get_arg_dict('-P', 'requirements')
+        self.assertTrue(args['plugins']['requirements'])
+        self.assertFalse(args['plugins']['ps1'])
+        self.assertFalse(args['plugins']['sublime'])
+        args = self._get_arg_dict('-P', 'requirements,ps1')
+        self.assertTrue(args['plugins']['requirements'])
+        self.assertTrue(args['plugins']['ps1'])
+        self.assertFalse(args['plugins']['sublime'])
+
+        lines = ['[plugins]', 'requirements = false']
+        open(os.path.join(self.fdir, 'fencepy.conf'), 'w').write(os.linesep.join(lines))
+        args = self._get_arg_dict()
+        self.assertFalse(args['plugins']['requirements'])
+        self.assertTrue(args['plugins']['ps1'])
+        self.assertTrue(args['plugins']['sublime'])
