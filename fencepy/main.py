@@ -9,9 +9,9 @@ import os
 import shutil
 import sys
 from . import plugins
-from .helpers import getoutputoserror, findpybin, str2bool
+from .helpers import getoutputoserror, findpybin, str2bool, py2, pyversionstr
 
-if sys.version.startswith('2'):
+if py2():
     from ConfigParser import SafeConfigParser
 else:
     from configparser import SafeConfigParser
@@ -96,9 +96,6 @@ def _get_args():
         except OSError as e:
             l.debug("tried to handle {0} as a git repository but it isn't one".format(args['dir']))
 
-    # keep track of the python version for later
-    args['pyversion'] = '.'.join([str(x) for x in sys.version_info[:2]])
-
     # reset the virtualenv root, if necessary
     if not args['virtualenv_dir']:
         venv_root = os.path.join(args['fencepy_root'], 'virtualenvs')
@@ -116,7 +113,7 @@ def _get_args():
             if tokens[-1] == '':
                 tokens = tokens[:-1]
             prjpart = '.'.join([os.path.basename(args['dir']), '.'.join([d[0] for d in tokens])])
-            args['virtualenv_dir'] = os.path.join(venv_root, '-'.join((prjpart, args['pyversion'])))
+            args['virtualenv_dir'] = os.path.join(venv_root, '-'.join((prjpart, pyversionstr())))
 
     # set the mode properly
     modecount = [args['activate'], args['create'], args['erase']].count(True)
@@ -253,7 +250,3 @@ def fence():
         if args[mode]:
             l.debug('{0}ing environment with args: {1}'.format(mode[:-1], args))
             return globals()['_{0}'.format(mode)](args)
-
-
-if __name__ == '__main__':
-    sys.exit(fence())

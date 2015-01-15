@@ -8,11 +8,11 @@ import sys
 import platform
 import uuid
 from py.test import raises
-if sys.version.startswith('2'):
-    from StringIO import StringIO
-else:
+from fencepy.helpers import getoutputoserror, redirected, py3
+if py3():
     from io import StringIO
-from fencepy.helpers import getoutputoserror, redirected
+else:
+    from StringIO import StringIO
 
 ORIGINAL_DIR = os.getcwd()
 ORIGINAL_ARGV = copy.copy(sys.argv)

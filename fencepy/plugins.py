@@ -8,7 +8,7 @@ import json
 import os
 import platform
 import sys
-from .helpers import pseudo_merge_dict, locate_subdirs, getoutputoserror, findpybin, getpybindir
+from .helpers import pseudo_merge_dict, locate_subdirs, getoutputoserror, findpybin, getpybindir, pyversionstr
 
 # set up logging
 import logging
@@ -72,7 +72,7 @@ def install_sublime(args):
 def install_ps1(args):
     """Change the PS1 environment name in activate scripts"""
 
-    ps1str = '-'.join((os.path.basename(args['dir']), args['pyversion']))
+    ps1str = '-'.join((os.path.basename(args['dir']), pyversionstr()))
     vdir = args['virtualenv_dir']
 
     system = platform.system()
