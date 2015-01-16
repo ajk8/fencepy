@@ -57,6 +57,8 @@ def _get_args():
                       help='Print debug logging')
     misc.add_argument('-q', '--quiet', action='store_true',
                       help='Silence all console output')
+    misc.add_argument('-s', '--silent', action='store_true',
+                      help='Silence ALL output, including log output')
     misc.add_argument("-h", "--help", action="help",
                       help="Show this help message and exit")
 
@@ -69,11 +71,12 @@ def _get_args():
         os.mkdir(args['fencepy_root'])
 
     # set up logging
-    f = l.Formatter('%(asctime)s [%(levelname)s] %(module)s: %(message)s')
-    h = RotatingFileHandler(os.path.join(args['fencepy_root'], 'fencepy.log'))
-    h.setFormatter(f)
-    l.getLogger('').addHandler(h)
-    if not args['quiet']:
+    if not args['silent']:
+        f = l.Formatter('%(asctime)s [%(levelname)s] %(module)s: %(message)s')
+        h = RotatingFileHandler(os.path.join(args['fencepy_root'], 'fencepy.log'))
+        h.setFormatter(f)
+        l.getLogger('').addHandler(h)
+    if not (args['silent'] or args['quiet']):
         f = l.Formatter('[%(levelname)s] %(message)s')
         h = l.StreamHandler()
         h.setFormatter(f)

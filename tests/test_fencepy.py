@@ -22,14 +22,16 @@ class TestFencepy(TestCase):
 
     def _fence(self, *args):
         # always include the overridden fencepy directory
-        sys.argv = ['fencepy', '-F', self.fdir] + list(args)
+        # no logging, since that breaks tests in Windows (with overridden fencepy dir)
+        sys.argv = ['fencepy', '-F', self.fdir, '-s'] + list(args)
         ret = fencepy.fence()
         sys.argv = ORIGINAL_ARGV
         return ret
 
     def _get_arg_dict(self, *args):
         # always include the overridden fencepy directory
-        sys.argv = ['fencepy', '-F', self.fdir, '-q'] + list(args)
+        # no logging, since that breaks tests in Windows (with overridden fencepy dir)
+        sys.argv = ['fencepy', '-F', self.fdir, '-s'] + list(args)
         ret = fencepy.main._get_args()
         sys.argv = ORIGINAL_ARGV
         return ret
