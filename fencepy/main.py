@@ -209,7 +209,7 @@ def _create(args):
     # go ahead and create the environment
     virtualenv = findpybin('virtualenv', sys.executable)
     try:
-        output = getoutputoserror('{0} {1}'.format(virtualenv, vdir))
+        output = getoutputoserror('{0} -p {1} {2}'.format(virtualenv, sys.executable, vdir))
         l.debug(''.ljust(40, '='))
         l.debug(output)
         l.debug(''.ljust(40, '='))
