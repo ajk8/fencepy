@@ -61,7 +61,7 @@ Usage
 
 ``. `fencepy -a```: Activate the virtual environment in a bash-like shell
 
-``. (fencepy -a)``: Activate the virtual environment in fish shell
+``source (fencepy -a)``: Activate the virtual environment in fish shell
 
 ``. $(fencepy -a)``: Activate the virtual environment in windows powershell
 
