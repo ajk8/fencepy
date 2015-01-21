@@ -1,6 +1,7 @@
 from setuptools import setup
+import sys
 
-pkgversion = '0.4.1'
+pkgversion = '0.4.2'
 
 setup(
     name='fencepy',
@@ -12,7 +13,8 @@ setup(
     download_url='https://github.com/ajk8/fencepy/tarball/' + pkgversion,
     license='MIT',
     packages=['fencepy'],
-    entry_points={'console_scripts': ['fencepy = fencepy:fence']},
+    entry_points={'console_scripts': ['fencepy=fencepy:fence',
+                                      'fencepy-%s.%s=fencepy:fence' % sys.version_info[:2]]},
     test_suite='tests',
     install_requires=[
         'virtualenv>=1.11'
