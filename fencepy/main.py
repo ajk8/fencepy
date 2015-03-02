@@ -9,11 +9,11 @@ import os
 import shutil
 import sys
 from . import plugins
-from .helpers import getoutputoserror, findpybin, str2bool, py2, pyversionstr
+from .helpers import getoutputoserror, findpybin, str2bool, py2, pyversionstr, get_shell
 
-if py2():
+try:
     from ConfigParser import SafeConfigParser
-else:
+except ImportError:
     from configparser import SafeConfigParser
 
 from logging.handlers import RotatingFileHandler
@@ -164,13 +164,13 @@ def _activate(args):
         return 1
 
     # unix-based shells
-    if 'SHELL' in os.environ.keys():
-        if os.environ['SHELL'].endswith('fish'):
-            apath = os.path.join(vdir, 'bin', 'activate.fish')
-        elif os.environ['SHELL'].endswith('csh'):
-            apath = os.path.join(vdir, 'bin', 'activate.csh')
-        else:
-            apath = os.path.join(vdir, 'bin', 'activate')
+    shell = get_shell()
+    if shell == 'fish':
+        apath = os.path.join(vdir, 'bin', 'activate.fish')
+    elif shell == 'csh':
+        apath = os.path.join(vdir, 'bin', 'activate.csh')
+    elif shell.endswith('sh'):
+        apath = os.path.join(vdir, 'bin', 'activate')
 
     # windows -- get-help will always raise the OSError, but we can still use it for this
     else:

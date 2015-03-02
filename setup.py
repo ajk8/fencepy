@@ -17,7 +17,8 @@ setup(
                                       'fencepy-%s.%s=fencepy:fence' % sys.version_info[:2]]},
     test_suite='tests',
     install_requires=[
-        'virtualenv>=1.11'
+        'virtualenv>=1.11',
+        'psutil>=2.2.1'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

@@ -7,6 +7,7 @@ Shared/generic functions
 import os
 import fnmatch
 import platform
+import psutil
 import subprocess
 import sys
 from contextlib import contextmanager
@@ -123,3 +124,8 @@ def str2bool(value):
         elif value.lower() in ('false', 'f', 'no', 'n', '0'):
             return False
     raise ValueError('{0} is not an acceptable boolean value'.format(value))
+
+
+def get_shell():
+    """Get the name of the running shell according to psutil"""
+    return psutil.Process(psutil.Process(os.getpid()).ppid()).name()

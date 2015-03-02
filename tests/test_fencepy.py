@@ -135,28 +135,17 @@ class TestFencepy(TestCase):
         self.assertEqual(ret, 1, 'there should be nothing to erase')
         self.assertFalse(os.path.exists(self.default_args['virtualenv_dir']))
 
-    # This can only be used to test for unix-base shells. There is
-    # no way to reliably test for .bat and .ps1 because the derivation
-    # method depends on functions being available on the path
-    def _test_activate(self, shell, script):
+    # Since the shell is derived from pid, this can only be generically tested
+    # Full coverage remains elusive
+    def test_activate(self):
         self.test_create_plain()
-        os.environ['SHELL'] = shell
         tempout = StringIO()
         with redirected(out=tempout):
             ret = self._fence('-a')
-            output = tempout.getvalue()
+        output = tempout.getvalue()
         self.assertEqual(ret, 0, 'activate printing failed')
         self.assertTrue(self.default_args['virtualenv_dir'] in output)
-        self.assertTrue(script in output)
-
-    def test_activate_fish(self):
-        self._test_activate('fish', 'activate.fish')
-
-    def test_activate_csh(self):
-        self._test_activate('csh', 'activate.csh')
-
-    def test_activate_bash(self):
-        self._test_activate('bash', 'activate')
+        self.assertTrue('activate' in output)
 
     def test_multiple_modes(self):
         with raises(RuntimeError):
