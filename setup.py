@@ -1,7 +1,7 @@
 from setuptools import setup
 import sys
 
-pkgversion = '0.4.3'
+pkgversion = '0.5.0'
 
 setup(
     name='fencepy',

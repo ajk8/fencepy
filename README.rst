@@ -14,6 +14,8 @@ a python virtual environment in a known location.
 **Master on Windows**
 
 |Appveyor Status|
+This has proven to be an unstable build environment. Keeping it here for
+ease of checking up on the status manually.
 
 How does it work?
 -----------------
