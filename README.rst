@@ -11,7 +11,7 @@ a python virtual environment in a known location.
 
 |Travis Status| |Coveralls Status|
 
-**Master on Windows** 
+**Master on Windows**
 
 |Appveyor Status|
 
@@ -57,15 +57,15 @@ virtualenv creation.
 Usage
 -----
 
-``fencepy -c``: Create a new virtual environment
+``fencepy create``: Create a new virtual environment
 
-``. `fencepy -a```: Activate the virtual environment in a bash-like shell
+``. `fencepy activate```: Activate the virtual environment in a bash-like shell
 
-``source (fencepy -a)``: Activate the virtual environment in fish shell
+``source (fencepy activate)``: Activate the virtual environment in fish shell
 
-``. $(fencepy -a)``: Activate the virtual environment in windows powershell
+``. $(fencepy activate)``: Activate the virtual environment in windows powershell
 
-``fencepy -e``: Remove the virtual environment
+``fencepy erase``: Remove the virtual environment
 
 Additional notes
 ----------------

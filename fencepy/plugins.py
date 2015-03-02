@@ -21,8 +21,8 @@ def install_requirements(args):
     """Install requirements out of requirements.txt, if it exists"""
 
     # break out various args for convenience
-    vdir = args['virtualenv_dir']
-    pdir = args['dir']
+    vdir = args['--virtualenv-dir']
+    pdir = args['--dir']
 
     # install requirements, if they exist
     rtxt = os.path.join(pdir, 'requirements.txt')
@@ -44,8 +44,8 @@ def install_sublime(args):
     """Set up sublime linter to use environment"""
 
     # break out various args for convenience
-    vdir = args['virtualenv_dir']
-    pdir = args['dir']
+    vdir = args['--virtualenv-dir']
+    pdir = args['--dir']
 
     # set up the sublime linter, if appropriate
     scfg = None
@@ -72,8 +72,8 @@ def install_sublime(args):
 def install_ps1(args):
     """Change the PS1 environment name in activate scripts"""
 
-    ps1str = '-'.join((os.path.basename(args['dir']), pyversionstr()))
-    vdir = args['virtualenv_dir']
+    ps1str = '-'.join((os.path.basename(args['--dir']), pyversionstr()))
+    vdir = args['--virtualenv-dir']
 
     system = platform.system()
     if system == 'Linux':

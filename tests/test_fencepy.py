@@ -8,6 +8,7 @@ import sys
 import platform
 import uuid
 from py.test import raises
+from docopt import DocoptExit
 from fencepy.helpers import getoutputoserror, redirected, py3
 if py3():
     from io import StringIO
@@ -31,7 +32,8 @@ class TestFencepy(TestCase):
     def _get_arg_dict(self, *args):
         # always include the overridden fencepy directory
         # no logging, since that breaks tests in Windows (with overridden fencepy dir)
-        sys.argv = ['fencepy', '-F', self.fdir, '-s'] + list(args)
+        # also, include "create" so that some command is included
+        sys.argv = ['fencepy', 'create', '-F', self.fdir, '-s'] + list(args)
         ret = fencepy.main._get_args()
         sys.argv = ORIGINAL_ARGV
         return ret
@@ -46,18 +48,18 @@ class TestFencepy(TestCase):
         self.default_args = self._get_arg_dict()
 
     def tearDown(self):
-        if os.path.exists(self.default_args['virtualenv_dir']):
-            shutil.rmtree(self.default_args['virtualenv_dir'])
+        if os.path.exists(self.default_args['--virtualenv-dir']):
+            shutil.rmtree(self.default_args['--virtualenv-dir'])
         os.chdir(ORIGINAL_DIR)
         shutil.rmtree(self.tempdir)
 
     def _create_and_assert(self, *args):
-        ret = self._fence('-c', *args)
+        ret = self._fence('create', *args)
         self.assertEqual(ret, 0, 'create command failed')
-        self.assertTrue(os.path.exists(self.default_args['virtualenv_dir']))
+        self.assertTrue(os.path.exists(self.default_args['--virtualenv-dir']))
 
     def test_create_plain(self):
-        self._create_and_assert('-p')
+        self._create_and_assert('-G')
 
     def test_create_nongit_without_plain(self):
         self._create_and_assert()
@@ -73,26 +75,26 @@ class TestFencepy(TestCase):
         project_dir = os.path.join(self.tempdir, project_name)
         os.mkdir(project_dir)
         args = self._get_arg_dict('-d', project_dir)
-        self.assertTrue(project_name in args['virtualenv_dir'])
-        ret = self._fence('-c', '-d', project_dir)
+        self.assertTrue(project_name in args['--virtualenv-dir'])
+        ret = self._fence('create', '-d', project_dir)
         self.assertEqual(ret, 0, 'create command failed')
-        self.assertTrue(os.path.exists(args['virtualenv_dir']))
-        shutil.rmtree(args['virtualenv_dir'])
+        self.assertTrue(os.path.exists(args['--virtualenv-dir']))
+        shutil.rmtree(args['--virtualenv-dir'])
 
     def test_create_with_pdir_does_not_exist(self):
         project_name = 'notarealpath'
         project_dir = os.path.join(tempfile.gettempdir(), project_name)
         args = self._get_arg_dict('-d', project_dir)
-        self.assertTrue(project_name in args['virtualenv_dir'])
-        ret = self._fence('-c', '-d', project_dir)
+        self.assertTrue(project_name in args['--virtualenv-dir'])
+        ret = self._fence('create', '-d', project_dir)
         self.assertNotEqual(ret, 0, 'create command should not succeed')
-        self.assertFalse(os.path.exists(args['virtualenv_dir']))
+        self.assertFalse(os.path.exists(args['--virtualenv-dir']))
 
     def test_create_with_vdir(self):
         vdir = os.path.join(self.tempdir, 'virtualenv')
         args = self._get_arg_dict('-D', vdir)
-        self.assertEqual(vdir, args['virtualenv_dir'])
-        ret = self._fence('-c', '-D', vdir)
+        self.assertEqual(vdir, args['--virtualenv-dir'])
+        ret = self._fence('create', '-D', vdir)
         self.assertEqual(ret, 0, 'create command failed')
         self.assertTrue(os.path.exists(vdir))
 
@@ -104,7 +106,7 @@ class TestFencepy(TestCase):
         self.test_create_plain()
 
         # in windows, this path will have \\ instead of \
-        path = self.default_args['virtualenv_dir']
+        path = self.default_args['--virtualenv-dir']
         if platform.system() == 'Windows':
             path = path.replace('\\', '\\\\')
         self.assertTrue(path in open(configfile).read())
@@ -113,7 +115,7 @@ class TestFencepy(TestCase):
         open(os.path.join(self.pdir, 'requirements.txt'), 'w').write('requests')
         self.test_create_plain()
         requests_installed = False
-        for path, dirs, files in os.walk(self.default_args['virtualenv_dir']):
+        for path, dirs, files in os.walk(self.default_args['--virtualenv-dir']):
             if 'requests' in dirs:
                 requests_installed = True
                 break
@@ -126,14 +128,14 @@ class TestFencepy(TestCase):
 
     def test_erase(self):
         self.test_create_plain()
-        ret = self._fence('-e')
+        ret = self._fence('erase')
         self.assertEqual(ret, 0, 'erase command failed')
-        self.assertFalse(os.path.exists(self.default_args['virtualenv_dir']))
+        self.assertFalse(os.path.exists(self.default_args['--virtualenv-dir']))
 
     def test_erase_does_not_exist(self):
-        ret = self._fence('-e')
+        ret = self._fence('erase')
         self.assertEqual(ret, 1, 'there should be nothing to erase')
-        self.assertFalse(os.path.exists(self.default_args['virtualenv_dir']))
+        self.assertFalse(os.path.exists(self.default_args['--virtualenv-dir']))
 
     # Since the shell is derived from pid, this can only be generically tested
     # Full coverage remains elusive
@@ -141,15 +143,15 @@ class TestFencepy(TestCase):
         self.test_create_plain()
         tempout = StringIO()
         with redirected(out=tempout):
-            ret = self._fence('-a')
+            ret = self._fence('activate')
         output = tempout.getvalue()
         self.assertEqual(ret, 0, 'activate printing failed')
-        self.assertTrue(self.default_args['virtualenv_dir'] in output)
+        self.assertTrue(self.default_args['--virtualenv-dir'] in output)
         self.assertTrue('activate' in output)
 
     def test_multiple_modes(self):
-        with raises(RuntimeError):
-            ret = self._fence('-a', '-c', '-e')
+        with raises(DocoptExit):
+            ret = self._fence('activate', 'create', 'erase')
 
     def test_specify_plugins(self):
         self.assertTrue(self.default_args['plugins']['requirements'])
