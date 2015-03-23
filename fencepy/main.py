@@ -25,6 +25,7 @@ fencepy -- Standardized fencing off of python virtual environments on a per-proj
 Usage:
   fencepy create [options]
   fencepy activate [options]
+  fencepy update [options]
   fencepy erase [options]
 
 Options:
@@ -163,6 +164,17 @@ def _activate(args):
     return 0
 
 
+def _plugins(args):
+    """Execute the plugin routines required by command line arguments"""
+
+    # plugins
+    for plugin_name in [key for key, value in args['plugins'].items() if value]:
+        if getattr(plugins, 'install_{0}'.format(plugin_name))(args) == 1:
+            return 1
+
+    return 0
+
+
 def _create(args):
     """Create a virtualenv for the current project"""
 
@@ -195,12 +207,13 @@ def _create(args):
         l.error(str(e))
         return 1
 
-    # plugins
-    for plugin_name in [key for key, value in args['plugins'].items() if value]:
-        if getattr(plugins, 'install_{0}'.format(plugin_name))(args) == 1:
-            return 1
+    # finish up with the plugins
+    return _plugins(args)
 
-    return 0
+
+def _update(args):
+    """Just run the plugins again"""
+    return _plugins(args)
 
 
 def _erase(args):
@@ -224,7 +237,7 @@ def fence():
     """Main entry point"""
 
     args = _get_args()
-    for mode in ['activate', 'create', 'erase']:
+    for mode in ['activate', 'create', 'update', 'erase']:
         if args[mode]:
             l.debug('{0}ing environment with args: {1}'.format(mode[:-1], args))
             return globals()['_{0}'.format(mode)](args)

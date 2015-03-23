@@ -6,7 +6,6 @@ Plugins for use during environment creation
 
 import json
 import os
-import platform
 import sys
 from .helpers import pseudo_merge_dict, locate_subdirs, getoutputoserror, findpybin, getpybindir, pyversionstr
 
@@ -75,52 +74,45 @@ def install_ps1(args):
     ps1str = '-'.join((os.path.basename(args['--dir']), pyversionstr()))
     vdir = args['--virtualenv-dir']
 
-    system = platform.system()
-    if system == 'Linux':
-        subdir = 'bin'
-        mods = {
-            'activate': {
-                'from': '(`basename \\"$VIRTUAL_ENV\\"`)',
-                'to': ps1str
-            },
-            'activate.csh': {
-                'from': '`basename "$VIRTUAL_ENV"`',
-                'to': ps1str
-            },
-            'activate.fish': {
-                'from': '(basename "$VIRTUAL_ENV")',
-                'to': ps1str
-            }
+    mods = {
+        'activate': {
+            'from': '`basename \\"$VIRTUAL_ENV\\"`',
+            'to': ps1str
+        },
+        'activate.csh': {
+            'from': '`basename "$VIRTUAL_ENV"`',
+            'to': ps1str
+        },
+        'activate.fish': {
+            'from': '(basename "$VIRTUAL_ENV")',
+            'to': ps1str
+        },
+        'activate.bat': {
+            'from': '({0})'.format(os.path.basename(vdir)),
+            'to': '({0})'.format(ps1str)
+        },
+        'activate.ps1': {
+            'from': '$(split-path $env:VIRTUAL_ENV -leaf)',
+            'to': ps1str
         }
-    elif system == 'Windows':
-        subdir = 'Scripts'
-        mods = {
-            'activate.bat': {
-                'from': '({0})'.format(os.path.basename(vdir)),
-                'to': '({0})'.format(ps1str)
-            },
-            'activate.ps1': {
-                'from': '$(split-path $env:VIRTUAL_ENV -leaf)',
-                'to': ps1str
-            }
-        }
-    else:
-        l.error('unrecognized platform.system(): {0}, cannot modify ps1 text'.format(system))
-        return 1
+    }
+    subdirs = ('bin', 'Scrips')
 
     for filename, trans in mods.items():
-        filepath = os.path.join(vdir, subdir, filename)
-        text = open(filepath, 'r').read()
-        if trans['from'] in text:
+        for subdir in subdirs:
+            filepath = os.path.join(vdir, subdir, filename)
+            if os.path.exists(filepath):
+                text = open(filepath, 'r').read()
+                if trans['from'] in text:
 
-            # workaround for issue that throws UnicodeDecodeError in windows
-            if filename == 'activate.ps1' and sys.getdefaultencoding() == 'ascii':
-                text = text.decode('utf-8', 'ignore')
-                text = text.replace(trans['from'], trans['to'])
-                text = text.encode('ascii', 'ignore')
-            else:
-                text = text.replace(trans['from'], trans['to'])
+                    # workaround for issue that throws UnicodeDecodeError in windows
+                    if filename == 'activate.ps1' and sys.getdefaultencoding() == 'ascii':
+                        text = text.decode('utf-8', 'ignore')
+                        text = text.replace(trans['from'], trans['to'])
+                        text = text.encode('ascii', 'ignore')
+                    else:
+                        text = text.replace(trans['from'], trans['to'])
 
-            open(filepath, 'w').write(text)
+                    open(filepath, 'w').write(text)
 
     return 0
