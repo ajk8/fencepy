@@ -69,6 +69,10 @@ Usage
 
 ``fencepy erase``: Remove the virtual environment
 
+``fencepy nuke``: Remove all of fencepy's virtual environments (for the obsessive cleaners out there)
+
+``fencepy help``: Get help on these and other optional arguments
+
 Additional notes
 ----------------
 
