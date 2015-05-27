@@ -112,8 +112,8 @@ def py3():
 
 
 def pyversionstr():
-    """Return a x.y version string for the python version"""
-    return '.'.join([str(x) for x in sys.version_info[:2]])
+    """Return a pyXY version string for the python version"""
+    return 'py{0}'.format(''.join([str(x) for x in sys.version_info[:2]]))
 
 
 def str2bool(value):
