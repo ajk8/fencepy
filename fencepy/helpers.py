@@ -101,16 +101,6 @@ def redirected(out=sys.stdout, err=sys.stderr):
         sys.stdout, sys.stderr = saved
 
 
-def py2():
-    """Check that we are running python 2.x"""
-    return sys.version.startswith('2')
-
-
-def py3():
-    """Check that we are running python 3.x"""
-    return sys.version.startswith('3')
-
-
 def pyversionstr():
     """Return a pyXY version string for the python version"""
     return 'py{0}'.format(''.join([str(x) for x in sys.version_info[:2]]))
@@ -118,7 +108,7 @@ def pyversionstr():
 
 def str2bool(value):
     """Convert various acceptable string values into a bool"""
-    if type(value) == str or (py2() and type(value) == unicode):
+    if type(value) == str or (sys.version_info[0] == 2 and type(value) == unicode):
         if value.lower() in ('true', 't', 'yes', 'y', '1'):
             return True
         elif value.lower() in ('false', 'f', 'no', 'n', '0'):

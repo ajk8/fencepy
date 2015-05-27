@@ -9,7 +9,7 @@ import os
 import shutil
 import sys
 from . import plugins
-from .helpers import getoutputoserror, findpybin, str2bool, py2, pyversionstr, get_shell
+from .helpers import getoutputoserror, findpybin, str2bool, pyversionstr, get_shell
 
 try:
     from ConfigParser import SafeConfigParser

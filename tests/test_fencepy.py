@@ -9,7 +9,7 @@ import platform
 import uuid
 from py.test import raises
 from docopt import DocoptExit
-from fencepy.helpers import getoutputoserror, redirected, py3
+from fencepy.helpers import getoutputoserror, redirected
 try:
     from StringIO import StringIO
 except ImportError:
