@@ -141,7 +141,7 @@ def _activate(args):
 
     # make sure the directory exists
     if not os.path.exists(vdir):
-        l.error('virtual environment does not exist, create it with -c')
+        l.error('virtual environment does not exist, please execute fencepy create')
         return 1
 
     # unix-based shells
