@@ -27,9 +27,9 @@ Usage:
   fencepy activate [options]
   fencepy update [options]
   fencepy erase [options]
+  fencepy help
 
 Options:
-  -h --help                    Show this screen
   -v --verbose                 Print/log more verbose output
   -q --quiet                   Silence all console output
   -s --silent                  Silence ALL output, including log output (except "activate")
@@ -121,7 +121,6 @@ def _get_args():
         args['plugins'] = dict((key, True) for key in plugins.PLUGINS)
         if config.has_section('plugins'):
             for key, value in config.items('plugins'):
-                print(key, value)
                 if key not in plugins.PLUGINS:
                     raise KeyError('invalid configuration: {0} is not a valid plugin'.format(key))
                 args['plugins'][key] = str2bool(value)
@@ -237,6 +236,13 @@ def fence():
     """Main entry point"""
 
     args = _get_args()
+
+    # override default help functionality
+    if args['help']:
+        print(DOCOPT)
+        return 0
+
+    # do a main action
     for mode in ['activate', 'create', 'update', 'erase']:
         if args[mode]:
             l.debug('{0}ing environment with args: {1}'.format(mode[:-1], args))
