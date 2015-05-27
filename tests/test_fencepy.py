@@ -10,10 +10,10 @@ import uuid
 from py.test import raises
 from docopt import DocoptExit
 from fencepy.helpers import getoutputoserror, redirected, py3
-if py3():
-    from io import StringIO
-else:
+try:
     from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 ORIGINAL_DIR = os.getcwd()
 ORIGINAL_ARGV = copy.copy(sys.argv)
@@ -25,6 +25,13 @@ class TestFencepy(TestCase):
         # always include the overridden fencepy directory
         # no logging, since that breaks tests in Windows (with overridden fencepy dir)
         sys.argv = ['fencepy', '-F', self.fdir, '-s'] + list(args)
+        ret = fencepy.fence()
+        sys.argv = ORIGINAL_ARGV
+        return ret
+
+    def _fence_no_options(self, *args):
+        # help doesn't work with any options
+        sys.argv = ['fencepy'] + list(args)
         ret = fencepy.fence()
         sys.argv = ORIGINAL_ARGV
         return ret
@@ -172,3 +179,33 @@ class TestFencepy(TestCase):
         self.assertFalse(args['plugins']['requirements'])
         self.assertTrue(args['plugins']['ps1'])
         self.assertTrue(args['plugins']['sublime'])
+
+    def test_help(self):
+        tempout = StringIO()
+        with redirected(out=tempout):
+            ret = self._fence_no_options('help')
+        output = tempout.getvalue()
+        self.assertTrue(output.strip().startswith('fencepy'))
+
+    def _test_nuke_with_answer(self, answer, assertion):
+        venv_root = fencepy.main._get_virtualenv_root(self.fdir)
+        if not os.path.exists(venv_root):
+            self._fence('create')
+        original_input = __builtins__['input']
+        __builtins__['input'] = lambda _: answer
+        self._fence('nuke')
+        __builtins__['input'] = original_input
+        self.assertEqual(os.path.exists(venv_root), assertion)
+
+    def test_nuke(self):
+        for answer, assertion in [
+            ('y', False),
+            ('Y', False),
+            ('yes', False),
+            ('yEs', False),
+            ('', True),
+            ('n', True),
+            ('No', True),
+            ('asdf#$*!', True)
+        ]:
+            self._test_nuke_with_answer(answer, assertion)

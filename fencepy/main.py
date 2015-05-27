@@ -27,6 +27,7 @@ Usage:
   fencepy activate [options]
   fencepy update [options]
   fencepy erase [options]
+  fencepy nuke [options]
   fencepy help
 
 Options:
@@ -42,6 +43,11 @@ Path Overrides:
   -F DIR --fencepy-root=DIR    Use DIR as the root of the fencepy tree [default: ~/.fencepy]
   -G --no-git                  Don't treat the working directory as a git repository
 """
+
+
+def _get_virtualenv_root(fencepy_root):
+    """Return the path to fencepy's virtualenv subdirectory"""
+    return os.path.join(fencepy_root, 'virtualenvs')
 
 
 def _get_args():
@@ -85,7 +91,7 @@ def _get_args():
 
     # reset the virtualenv root, if necessary
     if not args['--virtualenv-dir']:
-        venv_root = os.path.join(args['--fencepy-root'], 'virtualenvs')
+        venv_root = _get_virtualenv_root(args['--fencepy-root'])
 
         # if we're one directory below the root, this logic needs to work differently
         parent = os.path.dirname(args['--dir'])
@@ -232,6 +238,23 @@ def _erase(args):
     return 0
 
 
+def _nuke(args):
+    """Remove ALL fencepy virtualenvs"""
+
+    # make sure the user really wants to do this
+    answer = input('You are about to blow away everything fencepy owns. Are you sure? [y/N]')
+    if answer.lower() not in ['y', 'yes']:
+        print('Quitting')
+        return 0
+
+    # blow it away
+    venv_root = _get_virtualenv_root(args['--fencepy-root'])
+    if os.path.exists(venv_root):
+        shutil.rmtree(venv_root)
+
+    return 0
+
+
 def fence():
     """Main entry point"""
 
@@ -243,7 +266,7 @@ def fence():
         return 0
 
     # do a main action
-    for mode in ['activate', 'create', 'update', 'erase']:
+    for mode in ['activate', 'create', 'update', 'erase', 'nuke']:
         if args[mode]:
             l.debug('{0}ing environment with args: {1}'.format(mode[:-1], args))
             return globals()['_{0}'.format(mode)](args)
