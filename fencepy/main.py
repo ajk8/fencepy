@@ -8,6 +8,7 @@ import docopt
 import os
 import shutil
 import sys
+import psutil
 from . import plugins
 from .helpers import getoutputoserror, findpybin, str2bool, pyversionstr, get_shell
 
@@ -19,6 +20,8 @@ except ImportError:
 from logging.handlers import RotatingFileHandler
 import logging as l
 
+__version__ = '0.6.1'
+
 DOCOPT = """
 fencepy -- Standardized fencing off of python virtual environments on a per-project basis
 
@@ -29,6 +32,7 @@ Usage:
   fencepy erase [options]
   fencepy nuke [options]
   fencepy help
+  fencepy version
 
 Options:
   -v --verbose                 Print/log more verbose output
@@ -263,6 +267,12 @@ def fence():
     # override default help functionality
     if args['help']:
         print(DOCOPT)
+        return 0
+
+    elif args['version']:
+        print('{0} v{1} [{2}]'.format(
+            os.path.abspath(psutil.Process(os.getpid()).cmdline()[1]), __version__, pyversionstr()
+        ))
         return 0
 
     # do a main action

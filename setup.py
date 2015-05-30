@@ -1,7 +1,18 @@
-from setuptools import setup
 import sys
+import re
+import os
+from setuptools import setup
 
-pkgversion = '0.6.0'
+
+def get_version():
+    version_file = open(os.path.join('fencepy', 'main.py')).read()
+    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                              version_file, re.M)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
+
+pkgversion = get_version()
 
 setup(
     name='fencepy',
