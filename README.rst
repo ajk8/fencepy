@@ -71,6 +71,8 @@ Usage
 
 ``fencepy nuke``: Remove all of fencepy's virtual environments (for the obsessive cleaners out there)
 
+``fencepy genconfig``: Create a config file with defaults in fencepy's root directory
+
 ``fencepy help``: Get help on these and other optional arguments
 
 Additional notes

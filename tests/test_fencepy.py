@@ -161,24 +161,24 @@ class TestFencepy(TestCase):
             ret = self._fence('activate', 'create', 'erase')
 
     def test_specify_plugins(self):
-        self.assertTrue(self.default_args['plugins']['requirements'])
-        self.assertTrue(self.default_args['plugins']['ps1'])
-        self.assertTrue(self.default_args['plugins']['sublime'])
+        self.assertTrue(self.default_args['plugins']['requirements']['enabled'])
+        self.assertTrue(self.default_args['plugins']['ps1']['enabled'])
+        self.assertTrue(self.default_args['plugins']['sublime']['enabled'])
         args = self._get_arg_dict('-P', 'requirements')
-        self.assertTrue(args['plugins']['requirements'])
-        self.assertFalse(args['plugins']['ps1'])
-        self.assertFalse(args['plugins']['sublime'])
+        self.assertTrue(args['plugins']['requirements']['enabled'])
+        self.assertFalse(args['plugins']['ps1']['enabled'])
+        self.assertFalse(args['plugins']['sublime']['enabled'])
         args = self._get_arg_dict('-P', 'requirements,ps1')
-        self.assertTrue(args['plugins']['requirements'])
-        self.assertTrue(args['plugins']['ps1'])
-        self.assertFalse(args['plugins']['sublime'])
+        self.assertTrue(args['plugins']['requirements']['enabled'])
+        self.assertTrue(args['plugins']['ps1']['enabled'])
+        self.assertFalse(args['plugins']['sublime']['enabled'])
 
-        lines = ['[plugins]', 'requirements = false']
+        lines = ['[requirements]', 'enabled = true']
         open(os.path.join(self.fdir, 'fencepy.conf'), 'w').write(os.linesep.join(lines))
         args = self._get_arg_dict()
-        self.assertFalse(args['plugins']['requirements'])
-        self.assertTrue(args['plugins']['ps1'])
-        self.assertTrue(args['plugins']['sublime'])
+        self.assertTrue(args['plugins']['requirements']['enabled'])
+        self.assertFalse(args['plugins']['ps1']['enabled'])
+        self.assertFalse(args['plugins']['sublime']['enabled'])
 
     def test_help(self):
         tempout = StringIO()

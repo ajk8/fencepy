@@ -24,13 +24,15 @@ setup(
     download_url='https://github.com/ajk8/fencepy/tarball/' + pkgversion,
     license='MIT',
     packages=['fencepy'],
+    package_data={'fencepy': ['fencepy.conf.default']},
     entry_points={'console_scripts': ['fencepy=fencepy:fence',
                                       'fencepy-%s.%s=fencepy:fence' % sys.version_info[:2]]},
     test_suite='tests',
     install_requires=[
         'virtualenv>=12.0.7',
         'psutil>=2.2.1',
-        'docopt>=0.6.2'
+        'docopt>=0.6.2',
+        'funcy>=1.5'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

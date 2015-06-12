@@ -9,6 +9,7 @@ import os
 import shutil
 import sys
 import psutil
+from funcy import memoize
 from . import plugins
 from .helpers import getoutputoserror, findpybin, str2bool, pyversionstr, get_shell
 
@@ -31,24 +32,90 @@ Usage:
   fencepy update [options]
   fencepy erase [options]
   fencepy nuke [options]
+  fencepy genconfig
   fencepy help
   fencepy version
 
 Options:
-  -v --verbose                 Print/log more verbose output
-  -q --quiet                   Silence all console output
-  -s --silent                  Silence ALL output, including log output (except "activate")
-  -C FILE --config-file=FILE   Config file to use [default: ~/.fencepy/fencepy.conf]
-  -P LIST --plugins=LIST       Comma-separated list of plugins to apply (only "create")
+  -v --verbose                      Print/log more verbose output
+  -q --quiet                        Silence all console output
+  -s --silent                       Silence ALL output, including log output (except "activate")
+  -C FILE --config-file=FILE        Config file to use [default: ~/.fencepy/fencepy.conf]
+  -P LIST --plugins=LIST            Comma-separated list of plugins to apply (only "create")
+  -S DIR --sublime-project-dir=DIR  Search in DIR for .sublime-project files
 
 Path Overrides:
-  -d DIR --dir=DIR             Link the fenced environment to DIR instead of the CWD
-  -D DIR --virtualenv-dir=DIR  Use DIR as the root directory for the virtual environment
-  -F DIR --fencepy-root=DIR    Use DIR as the root of the fencepy tree [default: ~/.fencepy]
-  -G --no-git                  Don't treat the working directory as a git repository
+  -d DIR --dir=DIR                  Link the fenced environment to DIR instead of the CWD
+  -D DIR --virtualenv-dir=DIR       Use DIR as the root directory for the virtual environment
+  -F DIR --fencepy-root=DIR         Use DIR as the root of the fencepy tree [default: ~/.fencepy]
+  -G --no-git                       Don't treat the working directory as a git repository
 """
 
 
+@memoize
+def _get_parsed_config_file(filepath):
+    """Return a SafeConfigParser loaded with the data from a config file at filepath"""
+    ret = SafeConfigParser()
+    ret.read(filepath)
+    return ret
+
+
+@memoize
+def _get_default_config_file():
+    """Return the path to fencepy's default config file"""
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fencepy.conf.default')
+
+
+@memoize
+def _get_default_config_parsed():
+    """Return a SafeConfigParser loaded with the default config"""
+    return _get_parsed_config_file(_get_default_config_file())
+
+
+def _items_to_dict(items):
+    """Return a dict of items taken from a section of a SafeConfigParser"""
+    return dict((key, value) for key, value in items)
+
+
+def _fill_in_plugins_config(args, config=None):
+    """Add a plugins config structure to args"""
+
+    # fill in plugins config, starting with the default fencepy conf
+    allplugins = True
+    args['plugins'] = {}
+    for plugin in plugins.PLUGINS:
+
+        # the default config will have a complete list of necessary parameters -- no need to reinvent the wheel
+        args['plugins'][plugin] = _items_to_dict(_get_default_config_parsed().items(plugin))
+        args['plugins'][plugin]['enabled'] = False
+
+        # override with anything that comes from the passed in config file
+        if config is not None and config.has_section(plugin):
+            allplugins = False
+            args['plugins'][plugin] = _items_to_dict(config.items(plugin))
+            args['plugins'][plugin]['enabled'] = str2bool(args['plugins'][plugin]['enabled'])
+
+        # the config file can be overridden by the command line
+        if args['--plugins']:
+            args['plugins'][plugin]['enabled'] = True if plugin in args['--plugins'].split(',') else False
+
+        # if no plugins are enabled based on input, then all plugins are enabled (default behavior)
+        if args['plugins'][plugin]['enabled']:
+            allplugins = False
+
+    # default enabling of plugins
+    if allplugins:
+        for plugin in plugins.PLUGINS:
+            args['plugins'][plugin]['enabled'] = True
+
+    # add in any stuff directly from the command line
+    if args['--sublime-project-dir']:
+        args['plugins']['sublime']['project-dir'] = args['--sublime-project-dir']
+
+    return args
+
+
+@memoize
 def _get_virtualenv_root(fencepy_root):
     """Return the path to fencepy's virtualenv subdirectory"""
     return os.path.join(fencepy_root, 'virtualenvs')
@@ -113,7 +180,7 @@ def _get_args():
             args['--virtualenv-dir'] = os.path.join(venv_root, '-'.join((prjpart, pyversionstr())))
 
     # only populate the parser if there's a valid file
-    config = SafeConfigParser()
+    config = None
     readconf = True
     if args['--config-file'] == '~/.fencepy/fencepy.conf':
         args['--config-file'] = os.path.join(args['--fencepy-root'], 'fencepy.conf')
@@ -122,18 +189,11 @@ def _get_args():
     elif not os.path.exists(args['--config-file']):
         raise IOError('specified config file {0} does not exist'.format(args['--config-file']))
     if readconf:
-        config.read(args['--config-file'])
+        config = _get_parsed_config_file(args['--config-file'])
 
-    # plugins -- all false means all true
-    if args['--plugins']:
-        args['plugins'] = dict((key, key in args['--plugins'].split(',')) for key in plugins.PLUGINS)
-    else:
-        args['plugins'] = dict((key, True) for key in plugins.PLUGINS)
-        if config.has_section('plugins'):
-            for key, value in config.items('plugins'):
-                if key not in plugins.PLUGINS:
-                    raise KeyError('invalid configuration: {0} is not a valid plugin'.format(key))
-                args['plugins'][key] = str2bool(value)
+    # fill in the plugins config
+    _fill_in_plugins_config(args, config)
+
     return args
 
 
@@ -177,11 +237,12 @@ def _plugins(args):
     """Execute the plugin routines required by command line arguments"""
 
     # plugins
-    for plugin_name in [key for key, value in args['plugins'].items() if value]:
-        if getattr(plugins, 'install_{0}'.format(plugin_name))(args) == 1:
-            return 1
+    retval = 0
+    for plugin in plugins.PLUGINS:
+        if plugins.install(plugin, args) == 1:
+            retval = 1
 
-    return 0
+    return retval
 
 
 def _create(args):
@@ -208,6 +269,7 @@ def _create(args):
     # go ahead and create the environment
     virtualenv = findpybin('virtualenv', sys.executable)
     try:
+        l.info('creating {0}'.format(args['--virtualenv-dir']))
         output = getoutputoserror('{0} -p {1} {2}'.format(virtualenv, sys.executable, vdir))
         l.debug(''.ljust(40, '='))
         l.debug(output)
@@ -217,6 +279,7 @@ def _create(args):
         return 1
 
     # finish up with the plugins
+    l.info('using plugins: {0}'.format(', '.join([x for x in plugins.PLUGINS if args['plugins'][x]['enabled']])))
     return _plugins(args)
 
 
@@ -259,6 +322,26 @@ def _nuke(args):
     return 0
 
 
+def _genconfig(args):
+    """Generate a default config file in the fencepy root directory"""
+
+    fdir = args['--fencepy-root']
+    cfile = os.path.join(fdir, 'fencepy.conf')
+
+    if os.path.exists(cfile):
+        l.info('backing up {0}'.format(cfile))
+        i = 0
+        while True:
+            bak = '{0}.bak.{1}'.format(cfile, i)
+            if not os.path.exists(bak):
+                shutil.move(cfile, bak)
+                break
+    l.info('generating {0}'.format(cfile))
+    shutil.copy(_get_default_config_file(), cfile)
+
+    return 0
+
+
 def fence():
     """Main entry point"""
 
@@ -276,7 +359,7 @@ def fence():
         return 0
 
     # do a main action
-    for mode in ['activate', 'create', 'update', 'erase', 'nuke']:
+    for mode in ['activate', 'create', 'update', 'erase', 'nuke', 'genconfig']:
         if args[mode]:
             l.debug('{0}ing environment with args: {1}'.format(mode[:-1], args))
             return globals()['_{0}'.format(mode)](args)

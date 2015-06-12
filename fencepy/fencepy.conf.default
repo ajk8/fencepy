@@ -1,0 +1,27 @@
+# parameters for the requirements plugin
+[requirements]
+
+# if set to true, fencepy will read in 'requirements.txt' and install the contents
+# during environment setup
+enabled = true
+
+
+# parameters for the sublime plugin
+[sublime]
+
+# if set to true, fencepy will configure a sublime text project to use the
+# managed virtual environment for linting
+# project file location is configurable below
+enabled = true
+
+# if set, fencepy will look in this directory for a sublime-project file with the
+# same name as the project directory
+project-dir =
+
+
+# parameters for the ps1 plugin
+[ps1]
+
+# if set to true, fencepy will modify the activate scripts to include a
+# custom ps1 string
+enabled = true

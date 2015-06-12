@@ -16,7 +16,7 @@ l = logging.getLogger('')
 PLUGINS = ['requirements', 'sublime', 'ps1']
 
 
-def install_requirements(args):
+def _install_requirements(args):
     """Install requirements out of requirements.txt, if it exists"""
 
     # break out various args for convenience
@@ -39,19 +39,31 @@ def install_requirements(args):
         return 0
 
 
-def install_sublime(args):
+def _install_sublime(args):
     """Set up sublime linter to use environment"""
 
     # break out various args for convenience
     vdir = args['--virtualenv-dir']
     pdir = args['--dir']
+    sdir = args['plugins']['sublime']['project-dir']
 
     # set up the sublime linter, if appropriate
     scfg = None
-    for filename in os.listdir(pdir):
-        if filename.endswith('.sublime-project'):
-            scfg = os.path.join(pdir, filename)
-            break
+
+    # first, check the sublime project directory (if supplied)
+    if sdir:
+        guess = os.path.join(sdir, '{0}.sublime-project'.format(os.path.basename(pdir)))
+        if os.path.exists(guess):
+            scfg = guess
+
+    # try the local directory
+    if not scfg:
+        for filename in os.listdir(pdir):
+            if filename.endswith('.sublime-project'):
+                scfg = os.path.join(pdir, filename)
+                break
+
+    # if we found a file, go to work
     if scfg:
         l.debug('configuring sublime linter in file {0}'.format(scfg))
         cfg_dict = json.load(open(scfg))
@@ -68,7 +80,7 @@ def install_sublime(args):
     return 0
 
 
-def install_ps1(args):
+def _install_ps1(args):
     """Change the PS1 environment name in activate scripts"""
 
     ps1str = '-'.join((os.path.basename(args['--dir']), pyversionstr()))
@@ -116,3 +128,13 @@ def install_ps1(args):
                     open(filepath, 'w').write(text)
 
     return 0
+
+
+def install(plugin, args):
+    """Wrapper around running a plugin install method directly"""
+
+    # break out the conf and make sure we're enabled
+    if not args['plugins'][plugin]['enabled']:
+        return 0
+
+    return globals()['_install_{0}'.format(plugin)](args)
