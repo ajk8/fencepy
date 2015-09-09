@@ -106,34 +106,30 @@ Alternatives
 
 .. _virtualenvwrapper: http://virtualenvwrapper.readthedocs.org/en/latest/
 
-.. |Travis Status| image:: https://travis-ci.org/ajk8/fencepy.png?branch=master
+.. |Travis Status| image:: https://img.shields.io/travis/ajk8/fencepy/master.svg
     :target: https://travis-ci.org/ajk8/fencepy
     :alt: Travis-ci build status
-.. |Coveralls Status| image:: https://coveralls.io/repos/ajk8/fencepy/badge.png?branch=master
+.. |Coveralls Status| image:: https://img.shields.io/coveralls/ajk8/fencepy/master.svg
     :target: https://coveralls.io/r/ajk8/fencepy?branch=master
     :alt: Coveralls coverage (from travis)
-.. |Appveyor Status| image:: https://ci.appveyor.com/api/projects/status/qss2qb9y95i8oalc?svg=true&branch=master
+.. |Appveyor Status| image:: https://img.shields.io/appveyor/ci/ajk8/fencepy/master.svg
     :target: https://ci.appveyor.com/project/ajk8/fencepy
     :alt: Appveyor build status
-.. |Python Versions| image:: https://pypip.in/py_versions/fencepy/badge.svg
+.. |Python Versions| image:: https://img.shields.io/pypi/pyversions/fencepy.svg
     :target: https://pypi.python.org/pypi/fencepy/
     :alt: Supported Python versions
-.. |Latest Version| image:: https://pypip.in/v/fencepy/badge.png
+.. |Latest Version| image:: https://img.shields.io/pypi/v/fencepy.svg
     :target: https://pypi.python.org/pypi/fencepy/
     :alt: Latest Version
-.. |Download Stats| image:: https://pypip.in/d/fencepy/badge.png
+.. |Download Stats| image:: https://img.shields.io/pypi/dm/fencepy.svg
     :target: https://pypi.python.org/pypi/fencepy/
     :alt: Downloads/month
-.. |Egg Status| image:: https://pypip.in/egg/fencepy/badge.svg
-    :target: https://pypi.python.org/pypi/fencepy/
-    :alt: Egg Status
-.. |Wheel Status| image:: https://pypip.in/wheel/fencepy/badge.png
+.. |Wheel Status| image:: https://img.shields.io/pypi/wheel/fencepy.svg
     :target: https://pypi.python.org/pypi/fencepy/
     :alt: Wheel Status
-.. |License| image:: https://pypip.in/license/fencepy/badge.svg
+.. |License| image:: https://img.shields.io/pypi/l/fencepy.svg
     :target: https://pypi.python.org/pypi/fencepy/
     :alt: License
-.. |Development Status| image:: https://pypip.in/status/fencepy/badge.svg
+.. |Development Status| image:: https://img.shields.io/pypi/status/fencepy.svg
     :target: https://pypi.python.org/pypi/fencepy/
     :alt: Development Status
-
