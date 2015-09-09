@@ -109,7 +109,7 @@ Alternatives
 .. |Travis Status| image:: https://img.shields.io/travis/ajk8/fencepy/master.svg
     :target: https://travis-ci.org/ajk8/fencepy
     :alt: Travis-ci build status
-.. |Coveralls Status| image:: https://img.shields.io/coveralls/fencepy/fencepy/master.svg
+.. |Coveralls Status| image:: https://img.shields.io/coveralls/ajk8/fencepy/master.svg
     :target: https://coveralls.io/r/ajk8/fencepy?branch=master
     :alt: Coveralls coverage (from travis)
 .. |Appveyor Status| image:: https://img.shields.io/appveyor/ci/ajk8/fencepy/master.svg
