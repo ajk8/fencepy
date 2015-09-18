@@ -25,3 +25,11 @@ project-dir =
 # if set to true, fencepy will modify the activate scripts to include a
 # custom ps1 string
 enabled = true
+
+
+# parameters for the shellfuncs plugin
+[shellfuncs]
+
+# if set to true, fencepy will configure "aliases" for common functions in a shell-specific
+# way if an appropriate environment is detected (such as and oh-my-zsh plugin)
+enabled = true

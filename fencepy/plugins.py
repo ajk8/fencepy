@@ -7,13 +7,14 @@ Plugins for use during environment creation
 import json
 import os
 import sys
+import textwrap
 from .helpers import pseudo_merge_dict, locate_subdirs, getoutputoserror, findpybin, getpybindir, pyversionstr
 
 # set up logging
 import logging
 l = logging.getLogger('')
 
-PLUGINS = ['requirements', 'sublime', 'ps1']
+PLUGINS = ['requirements', 'sublime', 'ps1', 'shellfuncs']
 
 
 def _install_requirements(args):
@@ -127,6 +128,22 @@ def _install_ps1(args):
                         text = text.replace(trans['from'], trans['to'])
 
                     open(filepath, 'w').write(text)
+
+    return 0
+
+
+def _install_shellfuncs(args):
+    """Set up some functions for zsh users"""
+
+    # for oh-my-zsh users
+    target_file = '~/.oh-my-zsh/custom/fencepy.zsh'
+    if os.path.exists(os.path.expanduser(os.path.dirname(target_file))):
+        l.info('(re)configuring oh-my-zsh functions')
+        open(os.path.expanduser(target_file), 'w').write(textwrap.dedent('''fpadd() { fencepy create }
+                                                         fpsrc() { source `fencepy activate` }
+                                                         fpup() { fencepy update }
+                                                         fpdel() { fencepy erase }
+                                                         '''))
 
     return 0
 
