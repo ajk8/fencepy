@@ -157,7 +157,7 @@ def _get_args():
         try:
             output = getoutputoserror('git rev-parse --show-toplevel')
             args['--dir'] = output.strip()
-        except OSError as e:
+        except OSError:
             l.debug("tried to handle {0} as a git repository but it isn't one".format(args['--dir']))
 
     # reset the virtualenv root, if necessary

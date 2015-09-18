@@ -158,7 +158,7 @@ class TestFencepy(TestCase):
 
     def test_multiple_modes(self):
         with raises(DocoptExit):
-            ret = self._fence('activate', 'create', 'erase')
+            self._fence('activate', 'create', 'erase')
 
     def test_specify_plugins(self):
         self.assertTrue(self.default_args['plugins']['requirements']['enabled'])
@@ -183,7 +183,7 @@ class TestFencepy(TestCase):
     def test_help(self):
         tempout = StringIO()
         with redirected(out=tempout):
-            ret = self._fence_no_options('help')
+            self._fence_no_options('help')
         output = tempout.getvalue()
         self.assertTrue(output.strip().startswith('fencepy'))
 
