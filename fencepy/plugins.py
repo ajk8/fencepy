@@ -71,7 +71,8 @@ def _install_sublime(args):
             'SublimeLinter': {
                 'paths': {'linux': [os.path.join(vdir, getpybindir())]},
                 'python_paths': {'linux': locate_subdirs('site-packages', vdir)}
-            }
+            },
+            'settings': {'python_interpreter': findpybin('python', vdir)}
         }
         pseudo_merge_dict(cfg_dict, dict_data)
         json.dump(cfg_dict, open(scfg, 'w'), indent=4, separators=(', ', ': '), sort_keys=True)
