@@ -10,6 +10,7 @@ import platform
 import psutil
 import subprocess
 import sys
+import funcy
 from contextlib import contextmanager
 
 
@@ -86,6 +87,15 @@ def findpybin(name, start):
         binpath = os.path.join(rootpath, 'Scripts', '{0}.exe'.format(name))
         if os.path.exists(binpath):
             return binpath
+
+    # we could be in a brew environment on osx
+    try:
+        output = getoutputoserror('brew config')
+        new_start = funcy.re_find(r'HOMEBREW_PREFIX:\s+([/\w]+)', output)
+        if new_start != start:
+            return findpybin(name, new_start)
+    except OSError:
+        pass
 
     raise IOError('could not find {0} relative to {1}'.format(name, start))
 
