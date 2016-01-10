@@ -56,6 +56,18 @@ As a helpful shortcut, if there is a ``requirements.txt`` file in the
 input directory, then those requirements will be installed upon
 virtualenv creation.
 
+oh-my-zsh
+~~~~~~~~~
+
+If you use ``oh-my-zsh``, when you set up your first fencepy environment, it will
+configure some shortcuts for you::
+
+    fpadd -> fencepy create
+    fpnew -> fencepy create
+    fpsrc -> . `fencepy activate`
+    fpup  -> fencepy update
+    fpdel -> fencepy erase
+
 Usage
 -----
 
@@ -66,6 +78,8 @@ Usage
 ``source (fencepy activate)``: Activate the virtual environment in fish shell
 
 ``. $(fencepy activate)``: Activate the virtual environment in windows powershell
+
+``fencepy update``: Re-run all plugins on an existing fencepy
 
 ``fencepy erase``: Remove the virtual environment
 

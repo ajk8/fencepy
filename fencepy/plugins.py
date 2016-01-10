@@ -140,6 +140,7 @@ def _install_shellfuncs(args):
     if os.path.exists(os.path.expanduser(os.path.dirname(target_file))):
         l.info('(re)configuring oh-my-zsh functions')
         open(os.path.expanduser(target_file), 'w').write(textwrap.dedent('''fpadd() { fencepy create }
+                                                         fpnew() { fencepy create }
                                                          fpsrc() { source `fencepy activate` }
                                                          fpup() { fencepy update }
                                                          fpdel() { fencepy erase }
