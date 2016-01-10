@@ -21,7 +21,7 @@ except ImportError:
 from logging.handlers import RotatingFileHandler
 import logging as l
 
-__version__ = '0.6.1'
+__version__ = '0.7.0'
 
 DOCOPT = """
 fencepy -- Standardized fencing off of python virtual environments on a per-project basis
