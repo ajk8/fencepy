@@ -119,7 +119,7 @@ def pyversionstr():
 
 def str2bool(value):
     """Convert various acceptable string values into a bool"""
-    if type(value) in list(six.string_types) + [six.text_type]:
+    if isinstance(value, six.string_types):
         if value.lower() in ('true', 't', 'yes', 'y', '1'):
             return True
         elif value.lower() in ('false', 'f', 'no', 'n', '0'):
