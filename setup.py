@@ -1,38 +1,34 @@
 import sys
-import re
-import os
 from setuptools import setup
+from imp import find_module, load_module
 
+PROJECT_NAME = 'fencepy'
+GITHUB_USER = 'ajk8'
+GITHUB_ROOT = 'https://github.com/{}/{}'.format(GITHUB_USER, PROJECT_NAME)
 
-def get_version():
-    version_file = open(os.path.join('fencepy', 'main.py')).read()
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              version_file, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
+found = find_module('_version', [PROJECT_NAME])
+_version = load_module('_version', *found)
 
-pkgversion = get_version()
 
 setup(
-    name='fencepy',
-    version=pkgversion,
+    name=PROJECT_NAME,
+    version=_version.__version__,
     description='Standardized fencing off of python virtual environments on a per-project basis',
     author='Adam Kaufman',
     author_email='kaufman.blue@gmail.com',
-    url='https://github.com/ajk8/fencepy',
-    download_url='https://github.com/ajk8/fencepy/tarball/' + pkgversion,
+    url=GITHUB_ROOT,
+    download_url='{}/tarball/{}'.format(GITHUB_ROOT, _version.__version__),
     license='MIT',
-    packages=['fencepy'],
-    package_data={'fencepy': ['fencepy.conf.default']},
+    packages=[PROJECT_NAME],
+    package_data={PROJECT_NAME: ['fencepy.conf.default']},
     entry_points={'console_scripts': ['fencepy=fencepy:fence',
                                       'fencepy-%s.%s=fencepy:fence' % sys.version_info[:2]]},
-    test_suite='tests',
     install_requires=[
         'virtualenv>=12.0.7',
         'psutil>=2.2.1',
         'docopt>=0.6.2',
-        'funcy>=1.5'
+        'funcy>=1.5',
+        'six>=1.10.0'
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -45,5 +41,5 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Topic :: Software Development'
     ],
-    keywords='virtualenv development'
+    keywords='fencepy virtualenv virtual environment development project'
 )

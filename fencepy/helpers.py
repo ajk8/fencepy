@@ -11,6 +11,7 @@ import psutil
 import subprocess
 import sys
 import funcy
+import six
 from contextlib import contextmanager
 
 
@@ -118,7 +119,7 @@ def pyversionstr():
 
 def str2bool(value):
     """Convert various acceptable string values into a bool"""
-    if type(value) == str or (sys.version_info[0] == 2 and type(value) == unicode):
+    if type(value) in list(six.string_types) + [six.text_type]:
         if value.lower() in ('true', 't', 'yes', 'y', '1'):
             return True
         elif value.lower() in ('false', 'f', 'no', 'n', '0'):

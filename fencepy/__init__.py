@@ -6,4 +6,5 @@ Includes special processing if the directory is part of a git repository.  Also 
 configuration for users of sublime text
 """
 
-from .main import fence
+from ._version import __version__, __version_info__  # flake8: noqa
+from .main import fence  # flake8: noqa

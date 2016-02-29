@@ -8,11 +8,11 @@ import json
 import os
 import sys
 import textwrap
-from .helpers import pseudo_merge_dict, locate_subdirs, getoutputoserror, findpybin, getpybindir, pyversionstr
+from . import helpers
 
 # set up logging
 import logging
-l = logging.getLogger('')
+l = logging.getLogger(__name__)
 
 PLUGINS = ['requirements', 'sublime', 'ps1', 'shellfuncs']
 
@@ -29,7 +29,9 @@ def _install_requirements(args):
     if os.path.exists(rtxt):
         l.info('loading requirements from {0}'.format(rtxt))
         try:
-            output = getoutputoserror('{0} install -r {1}'.format(findpybin('pip', vdir), rtxt))
+            output = helpers.getoutputoserror(
+                '{0} install -r {1}'.format(helpers.findpybin('pip', vdir), rtxt)
+            )
             l.debug(''.ljust(40, '='))
             l.debug(output)
             l.debug(''.ljust(40, '='))
@@ -70,12 +72,12 @@ def _install_sublime(args):
         cfg_dict = json.load(open(scfg))
         dict_data = {
             'SublimeLinter': {
-                'paths': {'linux': [os.path.join(vdir, getpybindir())]},
-                'python_paths': {'linux': locate_subdirs('site-packages', vdir)}
+                'paths': {'linux': [os.path.join(vdir, helpers.getpybindir())]},
+                'python_paths': {'linux': helpers.locate_subdirs('site-packages', vdir)}
             },
-            'settings': {'python_interpreter': findpybin('python', vdir)}
+            'settings': {'python_interpreter': helpers.findpybin('python', vdir)}
         }
-        pseudo_merge_dict(cfg_dict, dict_data)
+        helpers.pseudo_merge_dict(cfg_dict, dict_data)
         json.dump(cfg_dict, open(scfg, 'w'), indent=4, separators=(', ', ': '), sort_keys=True)
         l.info('successfully configured sublime linter')
 
@@ -85,7 +87,7 @@ def _install_sublime(args):
 def _install_ps1(args):
     """Change the PS1 environment name in activate scripts"""
 
-    ps1str = '-'.join((os.path.basename(args['--dir']), pyversionstr()))
+    ps1str = '-'.join((os.path.basename(args['--dir']), helpers.pyversionstr()))
     vdir = args['--virtualenv-dir']
 
     mods = {
@@ -139,12 +141,14 @@ def _install_shellfuncs(args):
     target_file = '~/.oh-my-zsh/custom/fencepy.zsh'
     if os.path.exists(os.path.expanduser(os.path.dirname(target_file))):
         l.info('(re)configuring oh-my-zsh functions')
-        open(os.path.expanduser(target_file), 'w').write(textwrap.dedent('''fpadd() { fencepy create }
-                                                         fpnew() { fencepy create }
-                                                         fpsrc() { source `fencepy activate` }
-                                                         fpup() { fencepy update }
-                                                         fpdel() { fencepy erase }
-                                                         '''))
+        open(os.path.expanduser(target_file), 'w').write(textwrap.dedent(
+            '''fpadd() { fencepy create }
+            fpnew() { fencepy create }
+            fpsrc() { source `fencepy activate` }
+            fpup() { fencepy update }
+            fpdel() { fencepy erase }
+            '''
+        ))
 
     return 0
 

@@ -9,19 +9,19 @@ import os
 import shutil
 import sys
 import psutil
+import logging
+from logging import handlers
 from funcy import memoize
 from . import plugins
-from .helpers import getoutputoserror, findpybin, str2bool, pyversionstr, get_shell
+from . import helpers
+from . import _version
 
 try:
     from ConfigParser import SafeConfigParser
 except ImportError:
     from configparser import SafeConfigParser
 
-from logging.handlers import RotatingFileHandler
-import logging as l
-
-__version__ = '0.7.0'
+l = logging.getLogger(__name__)
 
 DOCOPT = """
 fencepy -- Standardized fencing off of python virtual environments on a per-project basis
@@ -85,7 +85,8 @@ def _fill_in_plugins_config(args, config=None):
     args['plugins'] = {}
     for plugin in plugins.PLUGINS:
 
-        # the default config will have a complete list of necessary parameters -- no need to reinvent the wheel
+        # the default config will have a complete list of necessary parameters
+        # no need to reinvent the wheel
         args['plugins'][plugin] = _items_to_dict(_get_default_config_parsed().items(plugin))
         args['plugins'][plugin]['enabled'] = False
 
@@ -93,13 +94,16 @@ def _fill_in_plugins_config(args, config=None):
         if config is not None and config.has_section(plugin):
             allplugins = False
             args['plugins'][plugin] = _items_to_dict(config.items(plugin))
-            args['plugins'][plugin]['enabled'] = str2bool(args['plugins'][plugin]['enabled'])
+            args['plugins'][plugin]['enabled'] = helpers.str2bool(
+                args['plugins'][plugin]['enabled']
+            )
 
         # the config file can be overridden by the command line
         if args['--plugins']:
-            args['plugins'][plugin]['enabled'] = True if plugin in args['--plugins'].split(',') else False
+            args['plugins'][plugin]['enabled'] = plugin in args['--plugins'].split(',')
 
-        # if no plugins are enabled based on input, then all plugins are enabled (default behavior)
+        # if no plugins are enabled based on input, then all plugins are enabled
+        # this is the default behavior
         if args['plugins'][plugin]['enabled']:
             allplugins = False
 
@@ -133,32 +137,34 @@ def _get_args():
 
     # set up logging
     if not args['--silent']:
-        f = l.Formatter('%(asctime)s [%(levelname)s] %(module)s: %(message)s')
-        h = RotatingFileHandler(os.path.join(args['--fencepy-root'], 'fencepy.log'))
+        f = logging.Formatter('%(asctime)s [%(levelname)s] %(module)s: %(message)s')
+        h = handlers.RotatingFileHandler(os.path.join(args['--fencepy-root'], 'fencepy.log'))
         h.setFormatter(f)
-        l.getLogger('').addHandler(h)
+        logging.getLogger('').addHandler(h)
     if not (args['--silent'] or args['--quiet']):
-        f = l.Formatter('[%(levelname)s] %(message)s')
-        h = l.StreamHandler()
+        f = logging.Formatter('[%(levelname)s] %(message)s')
+        h = logging.StreamHandler(stream=sys.stderr)
         h.setFormatter(f)
-        l.getLogger('').addHandler(h)
+        logging.getLogger('').addHandler(h)
 
     if args['--verbose']:
-        l.getLogger('').setLevel(l.DEBUG)
-        l.getLogger('sh').setLevel(l.INFO)
+        logging.getLogger('').setLevel(logging.DEBUG)
+        logging.getLogger('sh').setLevel(logging.INFO)
     else:
-        l.getLogger('').setLevel(l.INFO)
-        l.getLogger('sh').setLevel(l.ERROR)
+        logging.getLogger('').setLevel(logging.INFO)
+        logging.getLogger('sh').setLevel(logging.ERROR)
 
     # we need to do some work to get the root directory we care about here
     if not args['--dir']:
         args['--dir'] = os.getcwd()
     if not args['--no-git']:
         try:
-            output = getoutputoserror('git rev-parse --show-toplevel')
+            output = helpers.getoutputoserror('git rev-parse --show-toplevel')
             args['--dir'] = output.strip()
         except OSError:
-            l.debug("tried to handle {0} as a git repository but it isn't one".format(args['--dir']))
+            l.debug("tried to handle {0} as a git repository, but it isn't one".format(
+                args['--dir']
+            ))
 
     # reset the virtualenv root, if necessary
     if not args['--virtualenv-dir']:
@@ -177,7 +183,9 @@ def _get_args():
             if tokens[-1] == '':
                 tokens = tokens[:-1]
             prjpart = '.'.join([os.path.basename(args['--dir']), '.'.join([d[0] for d in tokens])])
-            args['--virtualenv-dir'] = os.path.join(venv_root, '-'.join((prjpart, pyversionstr())))
+            args['--virtualenv-dir'] = os.path.join(
+                venv_root, '-'.join((prjpart, helpers.pyversionstr()))
+            )
 
     # only populate the parser if there's a valid file
     config = None
@@ -209,7 +217,7 @@ def _activate(args):
         return 1
 
     # unix-based shells
-    shell = get_shell()
+    shell = helpers.get_shell()
     if shell == 'fish':
         apath = os.path.join(vdir, 'bin', 'activate.fish')
     elif shell == 'csh':
@@ -220,7 +228,7 @@ def _activate(args):
     # windows -- get-help will always raise the OSError, but we can still use it for this
     else:
         try:
-            getoutputoserror('get-help')
+            helpers.getoutputoserror('get-help')
         except OSError as e:
             if 'not recognized' in str(e):
                 apath = os.path.join(vdir, 'Scripts', 'activate.bat')
@@ -267,10 +275,12 @@ def _create(args):
         os.makedirs(os.path.dirname(vdir))
 
     # go ahead and create the environment
-    virtualenv = findpybin('virtualenv', sys.executable)
+    virtualenv = helpers.findpybin('virtualenv', sys.executable)
     try:
         l.info('creating {0}'.format(args['--virtualenv-dir']))
-        output = getoutputoserror('{0} -p {1} {2}'.format(virtualenv, sys.executable, vdir))
+        output = helpers.getoutputoserror(
+            '{0} -p {1} {2}'.format(virtualenv, sys.executable, vdir)
+        )
         l.debug(''.ljust(40, '='))
         l.debug(output)
         l.debug(''.ljust(40, '='))
@@ -279,7 +289,9 @@ def _create(args):
         return 1
 
     # finish up with the plugins
-    l.info('using plugins: {0}'.format(', '.join([x for x in plugins.PLUGINS if args['plugins'][x]['enabled']])))
+    l.info('using plugins: {0}'.format(
+        ', '.join([x for x in plugins.PLUGINS if args['plugins'][x]['enabled']])
+    ))
     return _plugins(args)
 
 
@@ -354,7 +366,9 @@ def fence():
 
     elif args['version']:
         print('{0} v{1} [{2}]'.format(
-            os.path.abspath(psutil.Process(os.getpid()).cmdline()[1]), __version__, pyversionstr()
+            os.path.abspath(psutil.Process(os.getpid()).cmdline()[1]),
+            _version.__version__,
+            helpers.pyversionstr()
         ))
         return 0
 
