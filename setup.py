@@ -17,12 +17,14 @@ setup(
     author='Adam Kaufman',
     author_email='kaufman.blue@gmail.com',
     url=GITHUB_ROOT,
-    download_url='{}/tarball/{}'.format(GITHUB_ROOT, _version.__version__),
+    download_url='{0}/tarball/{1}'.format(GITHUB_ROOT, _version.__version__),
     license='MIT',
     packages=[PROJECT_NAME],
     package_data={PROJECT_NAME: ['fencepy.conf.default']},
-    entry_points={'console_scripts': ['fencepy=fencepy:fence',
-                                      'fencepy-%s.%s=fencepy:fence' % sys.version_info[:2]]},
+    entry_points={'console_scripts': [
+        'fencepy=fencepy:fence',
+        'fencepy-{0}.{1}=fencepy:fence'.format(sys.version_info[:2])
+    ]},
     install_requires=[
         'virtualenv>=12.0.7',
         'psutil>=2.2.1',
