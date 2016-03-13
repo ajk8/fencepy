@@ -4,7 +4,7 @@ from imp import find_module, load_module
 
 PROJECT_NAME = 'fencepy'
 GITHUB_USER = 'ajk8'
-GITHUB_ROOT = 'https://github.com/{}/{}'.format(GITHUB_USER, PROJECT_NAME)
+GITHUB_ROOT = 'https://github.com/{0}/{1}'.format(GITHUB_USER, PROJECT_NAME)
 
 found = find_module('_version', [PROJECT_NAME])
 _version = load_module('_version', *found)
