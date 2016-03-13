@@ -23,7 +23,7 @@ setup(
     package_data={PROJECT_NAME: ['fencepy.conf.default']},
     entry_points={'console_scripts': [
         'fencepy=fencepy:fence',
-        'fencepy-{0}.{1}=fencepy:fence'.format(sys.version_info[:2])
+        'fencepy-{0}.{1}=fencepy:fence'.format(*sys.version_info[:2])
     ]},
     install_requires=[
         'virtualenv>=12.0.7',
