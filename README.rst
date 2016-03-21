@@ -68,26 +68,39 @@ configure some shortcuts for you::
     fpup  -> fencepy update
     fpdel -> fencepy erase
 
-Usage
+Quickstart
 -----
 
-``fencepy create``: Create a new virtual environment
+``fencepy`` manages virtual environments based on the directory each environment is linked to.  So, in order to act on a virtual environment, you simply have to be in the directory that it applies to and run a ``fencepy`` command.  To get started, install ``fencepy`` with ``pip``:
 
-``. `fencepy activate```: Activate the virtual environment in a bash-like shell
+.. code::
 
-``source (fencepy activate)``: Activate the virtual environment in fish shell
+    $ sudo pip install fencepy
+    
+Then you can create and activate virtual environment with a few simple commands:
 
-``. $(fencepy activate)``: Activate the virtual environment in windows powershell
+.. code::
 
-``fencepy update``: Re-run all plugins on an existing fencepy
+    $ cd <project_dir>
+    $ fencepy create
+    $ . `fencepy activate`
+    
+These commands are universal, which is to say they never change, regardless of the project you're working on (and thus are *very* ``<ctrl-r>``-friendly).  Any time you want to get back to your virtual environment, it looks just the same, without the creation:
 
-``fencepy erase``: Remove the virtual environment
+.. code::
 
-``fencepy nuke``: Remove all of fencepy's virtual environments (for the obsessive cleaners out there)
+    $ cd <project_dir>
+    $ . `fencepy activate`
+    
+If, for any reason, you need to start fresh, simply blow it away and recreate:
 
-``fencepy genconfig``: Create a config file with defaults in fencepy's root directory
+.. code::
 
-``fencepy help``: Get help on these and other optional arguments
+    $ cd <project_dir>
+    $ fencepy erase
+    $ fencepy create
+
+See ``fencepy help`` for more information on these and all the other functions that ``fencepy`` has to offer!
 
 Additional notes
 ----------------
@@ -101,9 +114,7 @@ one project, as they will be stored in separate directories.
 Cross-platform support
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Both Windows and UNIX shells are supported! I have not yet figured out how
-to activate in one command from within CMD.exe. If anyone knows the solution,
-please let me know!
+Both Windows and *nix shells are supported!
 
 Extending fencepy
 ~~~~~~~~~~~~~~~~~
